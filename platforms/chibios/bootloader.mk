@@ -123,6 +123,18 @@ endif
 ifeq ($(strip $(BOOTLOADER)), sn32-dfu)
     OPT_DEFS += -DBOOTLOADER_SN32_DFU
     BOOTLOADER_TYPE = sn32_dfu
+
+    # Options to pass to sonixflasher when flashing
+    ifeq ($(strip $(MCU_SERIES)), SN32F240)
+        DFU_ARGS ?= -v 0c45/7900
+    endif
+    ifeq ($(strip $(MCU_SERIES)), SN32F240B)
+        DFU_ARGS ?= -v 0c45/7040
+    endif
+    ifeq ($(strip $(MCU_SERIES)), SN32F260)
+        DFU_ARGS ?= -v 0c45/7010 -o 0x200
+    endif
+
 endif
 
 ifeq ($(strip $(BOOTLOADER_TYPE)),)

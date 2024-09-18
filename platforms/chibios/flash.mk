@@ -38,6 +38,12 @@ define EXEC_WB32_DFU_UPDATER
 	$(WB32_DFU_UPDATER) -D $(BUILD_DIR)/$(TARGET).bin && $(WB32_DFU_UPDATER) -R
 endef
 
+SONIX_FLASHER ?= sonixflasher
+
+define EXEC_SONIX_FLASHER
+	$(SONIX_FLASHER) $(DFU_ARGS) -f $(BUILD_DIR)/$(TARGET).bin
+endef
+
 dfu-util: $(BUILD_DIR)/$(TARGET).bin cpfirmware sizeafter
 	$(call EXEC_DFU_UTIL)
 
@@ -115,6 +121,8 @@ else ifeq ($(strip $(MCU_FAMILY)),WB32)
 	$(UNSYNC_OUTPUT_CMD) && $(call EXEC_WB32_DFU_UPDATER)
 else ifeq ($(strip $(MCU_FAMILY)),GD32V)
 	$(UNSYNC_OUTPUT_CMD) && $(call EXEC_DFU_UTIL)
+else ifeq ($(strip $(MCU_FAMILY)),SN32)
+	$(UNSYNC_OUTPUT_CMD) && $(call EXEC_SONIX_FLASHER)
 else
 	$(PRINT_OK); $(SILENT) || printf "$(MSG_FLASH_BOOTLOADER)"
 endif
