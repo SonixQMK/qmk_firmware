@@ -29,3 +29,9 @@ _qmk_install() {
 
     python3 -m pip install -r $QMK_FIRMWARE_DIR/requirements.txt
 }
+
+_qmk_install_sonixflasher() {
+    echo "Installing sonixflasher"
+
+    brew install sonixqmk/sonixqmk/sonixflasher
+}
