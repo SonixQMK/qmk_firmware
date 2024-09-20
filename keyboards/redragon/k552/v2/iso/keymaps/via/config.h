@@ -15,4 +15,4 @@
  */
 #pragma once
 
-#define RGB_MATRIX_LED_COUNT 90
+#define DYNAMIC_KEYMAP_LAYER_COUNT 2
