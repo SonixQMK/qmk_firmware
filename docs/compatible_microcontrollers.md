@@ -81,10 +81,6 @@ For a detailed overview about the RP2040 support by QMK see the [dedicated RP204
  * [SN32F24xB](https://www.sonix.com.tw/article-en-4336-30356)
  * [SN32F26x](https://www.sonix.com.tw/article-en-998-24753)
 
-## Atmel ATSAM
-
-There is limited support for one of Atmel's ATSAM microcontrollers, that being the [ATSAMD51J18A](https://www.microchip.com/wwwproducts/en/ATSAMD51J18A) used by the [Massdrop keyboards](https://github.com/qmk/qmk_firmware/tree/master/keyboards/massdrop). However, it is not recommended to design a board with this microcontroller as the support is quite specialized to Massdrop hardware.
-
 ## RISC-V
 
 ### GigaDevice

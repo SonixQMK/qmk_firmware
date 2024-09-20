@@ -26,7 +26,6 @@
     },
     "usb": {
         "vid": "0x0C45",
-        "device_version": "1.0.0",
-        "wait_for": false
+        "device_version": "1.0.0"
     }
 }
