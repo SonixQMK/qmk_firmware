@@ -6,8 +6,7 @@
     "usb": {
         "vid": "0x0C45",
         "pid": "0x5004",
-        "device_version": "1.0.0",
-        "force_nkro": true
+        "device_version": "1.0.0"
     },
     "processor": "SN32F248BF",
     "bootloader": "sn32-dfu",
