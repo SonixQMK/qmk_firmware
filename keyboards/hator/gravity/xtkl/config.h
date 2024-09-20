@@ -21,3 +21,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SN32_RGB_MATRIX_ROW_PINS { C3,C1,C0, C6,C5,C4, C9,C8,C7, C12,C11,C10, B13,C14,C13, B14,B15,D3, A2,A4,A3 }
 #define SN32_RGB_OUTPUT_ACTIVE_LEVEL SN32_RGB_OUTPUT_ACTIVE_HIGH
 #define RGB_MATRIX_LED_COUNT 104
+#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 240
