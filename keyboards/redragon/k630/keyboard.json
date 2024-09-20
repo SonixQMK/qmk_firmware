@@ -9,8 +9,7 @@
     "usb": {
         "vid": "0x0C45",
         "pid": "0x5004",
-        "device_version": "0.0.1",
-        "force_nkro": true
+        "device_version": "0.0.1"
     },
 
     "features": {
