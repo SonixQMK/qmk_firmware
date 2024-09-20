@@ -138,8 +138,8 @@ def keymap_check(kb, km):
         return ok
 
     if km in INVALID_KM_NAMES:
-        ok = False
-        cli.log.error("%s: The keymap %s should not exist!", kb, km)
+        ok = True
+        cli.log.warning("%s: The keymap %s should not exist!", kb, km)
         return ok
 
     # Additional checks

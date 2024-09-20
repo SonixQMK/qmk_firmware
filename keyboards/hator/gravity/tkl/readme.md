@@ -12,7 +12,7 @@ Make firmware for this keyboard (after setting up your build environment, 2 type
 
     qmk compile -kb hator/gravity/tkl -km via
 or
-    qmk compile -kb hator/gravity/tkl -km default	
+    qmk compile -kb hator/gravity/tkl -km default
 
 See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [SonixQMK instructions](https://sonixqmk.github.io//SonixDocs/install/) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
 
