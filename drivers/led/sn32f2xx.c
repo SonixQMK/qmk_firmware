@@ -126,7 +126,7 @@ static void rgb_callback(PWMDriver *pwmp);
 /* PWM configuration structure. We use timer CT16B1 with 24 channels. */
 static PWMConfig pwmcfg = {
     freq,        /* PWM clock frequency. */
-    periodticks, /* PWM period (in ticks) 1S (1/10kHz=0.1mS 0.1ms*10000 ticks=1S) */
+    periodticks, /* PWM period = periodticks * (1 / CH_CFG_ST_FREQUENCY) ≈ 255 * (1 / 187500) ≈ 1.36 ms */
     NULL,        /* RGB Callback */
     {
         /* Default all channels to disabled - Channels will be configured during init */
@@ -143,7 +143,7 @@ static void rgb_ch_ctrl(PWMConfig *cfg) {
         // Only P0.0 to P2.15 can be used as pwm output
         if (led_col_pins[i] > C15) continue;
 #    endif // SN32_PWM_CONTROL
-        /* We use a tricky here, accordint to pfpa table of sn32f240b datasheet,
+        /* We use a trick here, according to pfpa table of sn32f240b datasheet,
            pwm channel and pfpa of pin Px.y can be calculated as below:
              channel = (x*16+y)%24
              pfpa = 1, when (x*16+y)>23
@@ -157,7 +157,7 @@ static void rgb_ch_ctrl(PWMConfig *cfg) {
         // Only P0.0 to P2.15 can be used as pwm output
         if (led_row_pins[i] > C15) continue;
 #    endif // SN32_PWM_CONTROL
-        /* We use a tricky here, accordint to pfpa table of sn32f240b datasheet,
+        /* We use a trick here, according to pfpa table of sn32f240b datasheet,
            pwm channel and pfpa of pin Px.y can be calculated as below:
              channel = (x*16+y)%24
              pfpa = 1, when (x*16+y)>23
@@ -264,7 +264,7 @@ static void rgb_ch_ctrl(void) {
         // Only P0.0 to P0.15 and P3.0 to P3.8 can be used as pwm output
         if (led_col_pins[i] > A15 && led_col_pins[i] < D0) continue;
 #    endif // SN32_PWM_CONTROL
-        /* We use a tricky here, accordint to pfpa table of sn32f260 datasheet,
+        /* We use a trick here, according to pfpa table of sn32f260 datasheet,
            pwm channel and pfpa of pin Px.y can be calculated as below:
              channel = (x*16+y)%23
         */
@@ -277,7 +277,7 @@ static void rgb_ch_ctrl(void) {
         // Only P0.0 to P0.15 and P3.0 to P3.8 can be used as pwm output
         if (led_row_pins[i] > A15 && led_row_pins[i] < D0) continue;
 #    endif // SN32_PWM_CONTROL
-        /* We use a tricky here, accordint to pfpa table of sn32f260 datasheet,
+        /* We use a trick here, according to pfpa table of sn32f260 datasheet,
            pwm channel and pfpa of pin Px.y can be calculated as below:
              channel = (x*16+y)%23
         */
