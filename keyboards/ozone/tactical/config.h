@@ -18,5 +18,5 @@
 #pragma once
 
 // RGB config
-#define SN32_RGB_MATRIX_ROW_PINS { C4, C5, C6,  C7, C8, C9,  C10, C11, C12, C13, C14, B13,  D3, B15, B14 }
+#define SN32F2XX_RGB_MATRIX_ROW_PINS { C4, C5, C6,  C7, C8, C9,  C10, C11, C12, C13, C14, B13,  D3, B15, B14 }
 #define RGB_MATRIX_LED_COUNT 69
