@@ -61,20 +61,20 @@ You can then call the SN32F2XX API by including `sn32f2xx.h` in your code.
 
 Add the following to your `config.h`:
 
-|Define                         |Default                       |Description                                                                                         |
-|-------------------------------|------------------------------|----------------------------------------------------------------------------------------------------|
-|`SN32_RGB_MATRIX_ROW_PINS`     |*Not defined*                 |The GPIO pins connected to the RGB sink triplets on every row of the LEDs in the matrix<sup>1</sup> |
-|`SN32_RGB_MATRIX_COL_PINS`     |`MATRIX_COL_PINS`             |The GPIO pins connected to the LED columns on every column of the LEDs in the matrix<sup>2</sup>    |
-|`SN32_RGB_MATRIX_COLS`         |`MATRIX_COLS`                 |Number of LED columns in the LED matrix                                                             |
-|`SN32_RGB_MATRIX_ROWS`         |`MATRIX_ROWS`                 |Number of LED rows in the LED matrix                                                                |
-|`SN32_RGB_MATRIX_ROW_CHANNELS` |`3`                           |The number of available color channels for each LED                                                 |
-|`SN32_PWM_OUTPUT_ACTIVE_LEVEL` |`SN32_PWM_OUTPUT_ACTIVE_LOW`  |The logic level that enables PWM output. Depends on transistor controlling PWM                      |
-|`SN32_RGB_OUTPUT_ACTIVE_LEVEL` |`SN32_RGB_OUTPUT_ACTIVE_HIGH` |The logic level that enables RGB output. Depends on transistor controlling RGB sinks                |
-|`SN32_PWM_DIRECTION`           |`DIODE_DIRECTION`             |The scanning logic direction for the LED matrix                                                     |
-|`SN32_PWM_CONTROL`             |`HARDWARE_PWM`                |Toggles hardware or software control for the PWM                                                    |
-|`SN32_LED_OUTPUT_LUMINOSITY_R` |`1`                           |Luminosity correction factor for the Red channel                                                    |
-|`SN32_LED_OUTPUT_LUMINOSITY_G` |`1`                           |Luminosity correction factor for the Green channel                                                  |
-|`SN32_LED_OUTPUT_LUMINOSITY_B` |`1`                           |Luminosity correction factor for the Blue channel                                                   |
+|Define                             |Default                           |Description                                                                                         |
+|-----------------------------------|----------------------------------|----------------------------------------------------------------------------------------------------|
+|`SN32F2XX_RGB_MATRIX_ROW_PINS`     |*Not defined*                     |The GPIO pins connected to the RGB sink triplets on every row of the LEDs in the matrix<sup>1</sup> |
+|`SN32F2XX_RGB_MATRIX_COL_PINS`     |`MATRIX_COL_PINS`                 |The GPIO pins connected to the LED columns on every column of the LEDs in the matrix<sup>2</sup>    |
+|`SN32F2XX_RGB_MATRIX_COLS`         |`MATRIX_COLS`                     |Number of LED columns in the LED matrix                                                             |
+|`SN32F2XX_RGB_MATRIX_ROWS`         |`MATRIX_ROWS`                     |Number of LED rows in the LED matrix                                                                |
+|`SN32F2XX_RGB_MATRIX_ROW_CHANNELS` |`3`                               |The number of available color channels for each LED                                                 |
+|`SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL` |`SN32F2XX_PWM_OUTPUT_ACTIVE_LOW`  |The logic level that enables PWM output. Depends on transistor controlling PWM                      |
+|`SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL` |`SN32F2XX_RGB_OUTPUT_ACTIVE_HIGH` |The logic level that enables RGB output. Depends on transistor controlling RGB sinks                |
+|`SN32F2XX_PWM_DIRECTION`           |`DIODE_DIRECTION`                 |The scanning logic direction for the LED matrix                                                     |
+|`SN32F2XX_PWM_CONTROL`             |`HARDWARE_PWM`                    |Toggles hardware or software control for the PWM                                                    |
+|`SN32F2XX_LED_OUTPUT_LUMINOSITY_R` |`1`                               |Luminosity correction factor for the Red channel                                                    |
+|`SN32F2XX_LED_OUTPUT_LUMINOSITY_G` |`1`                               |Luminosity correction factor for the Green channel                                                  |
+|`SN32F2XX_LED_OUTPUT_LUMINOSITY_B` |`1`                               |Luminosity correction factor for the Blue channel                                                   |
 
 Notes:
 
