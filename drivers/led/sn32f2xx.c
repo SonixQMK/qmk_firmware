@@ -70,16 +70,16 @@
 */
 #if (SN32F2XX_PWM_DIRECTION == COL2ROW)
 static uint8_t chan_col_order[SN32F2XX_RGB_MATRIX_COLS] = {0}; // track the channel col order
-static uint8_t current_row                          = 0;   // LED row scan counter
-static uint8_t current_key_row                      = 0;   // key row scan counter
+static uint8_t current_row                              = 0;   // LED row scan counter
+static uint8_t current_key_row                          = 0;   // key row scan counter
 #    if (SN32F2XX_PWM_CONTROL == SOFTWARE_PWM)
 static uint8_t led_duty_cycle[SN32F2XX_RGB_MATRIX_COLS] = {0}; // track the channel duty cycle
 #    endif
 #elif (SN32F2XX_PWM_DIRECTION == ROW2COL)
 /* make sure to `#define MATRIX_UNSELECT_DRIVE_HIGH` in this configuration*/
 static uint8_t chan_row_order[SN32F2XX_RGB_MATRIX_ROWS_HW] = {0}; // track the channel row order
-static uint8_t current_key_col                         = 0;   // key col scan counter
-static uint8_t last_key_col                            = 0;   // key col scan counter
+static uint8_t current_key_col                             = 0;   // key col scan counter
+static uint8_t last_key_col                                = 0;   // key col scan counter
 #    if (SN32F2XX_PWM_CONTROL == SOFTWARE_PWM)
 static uint8_t led_duty_cycle[SN32F2XX_RGB_MATRIX_ROWS_HW] = {0}; // track the channel duty cycle
 #    endif
@@ -88,14 +88,14 @@ static uint8_t led_duty_cycle[SN32F2XX_RGB_MATRIX_ROWS_HW] = {0}; // track the c
 static matrix_row_t row_shifter = MATRIX_ROW_SHIFTER;
 #endif
 #if defined(SHARED_MATRIX)
-extern matrix_row_t   raw_matrix[MATRIX_ROWS];                       // raw values
-extern matrix_row_t   matrix[MATRIX_ROWS];                           // debounced values
-static matrix_row_t   shared_matrix[MATRIX_ROWS];                    // scan values
-static volatile bool  matrix_locked                         = false; // matrix update check
-static volatile bool  matrix_scanned                        = false;
+extern matrix_row_t  raw_matrix[MATRIX_ROWS];    // raw values
+extern matrix_row_t  matrix[MATRIX_ROWS];        // debounced values
+static matrix_row_t  shared_matrix[MATRIX_ROWS]; // scan values
+static volatile bool matrix_locked  = false;     // matrix update check
+static volatile bool matrix_scanned = false;
 #endif // SHARED MATRIX
-static const uint32_t periodticks                           = RGB_MATRIX_MAXIMUM_BRIGHTNESS;
-static const uint32_t freq                                  = (RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT);
+static const uint32_t periodticks                               = RGB_MATRIX_MAXIMUM_BRIGHTNESS;
+static const uint32_t freq                                      = (RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT);
 static const pin_t    led_row_pins[SN32F2XX_RGB_MATRIX_ROWS_HW] = SN32F2XX_RGB_MATRIX_ROW_PINS; // We expect a R,B,G order here
 static const pin_t    led_col_pins[SN32F2XX_RGB_MATRIX_COLS]    = SN32F2XX_RGB_MATRIX_COL_PINS;
 static RGB            led_state[SN32F2XX_LED_COUNT];     // led state buffer
@@ -119,7 +119,7 @@ bool matrix_can_read(void) {
 static void rgb_callback(PWMDriver *pwmp);
 
 #if !defined(SN32F2)
-#error Driver is MCU specific to the Sonix SN32F2 family.
+#    error Driver is MCU specific to the Sonix SN32F2 family.
 #endif // !defined(SN32F2)
 
 #if defined(SN32F240B)
@@ -130,19 +130,19 @@ static PWMConfig pwmcfg = {
     NULL,        /* RGB Callback */
     {
         /* Default all channels to disabled - Channels will be configured during init */
-        [0 ... PWM_CHANNELS-1] = {PWM_OUTPUT_DISABLED, NULL, 0},
+        [0 ... PWM_CHANNELS - 1] = {PWM_OUTPUT_DISABLED, NULL, 0},
     },
     0 /* HW dependent part.*/
 };
 
 static void rgb_ch_ctrl(PWMConfig *cfg) {
     /* Enable PWM function, IOs and select the PWM modes for the LED pins */
-#if (SN32F2XX_PWM_DIRECTION == COL2ROW)
+#    if (SN32F2XX_PWM_DIRECTION == COL2ROW)
     for (uint8_t i = 0; i < SN32F2XX_RGB_MATRIX_COLS; i++) {
-#    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
+#        if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
         // Only P0.0 to P2.15 can be used as pwm output
         if (led_col_pins[i] > C15) continue;
-#    endif // SN32F2XX_PWM_CONTROL
+#        endif // SN32F2XX_PWM_CONTROL
         /* We use a trick here, according to pfpa table of sn32f240b datasheet,
            pwm channel and pfpa of pin Px.y can be calculated as below:
              channel = (x*16+y)%24
@@ -151,12 +151,12 @@ static void rgb_ch_ctrl(PWMConfig *cfg) {
         uint8_t pio_value = ((uint32_t)(PAL_PORT(led_col_pins[i])) - (uint32_t)(PAL_PORT(A0))) / ((uint32_t)(PAL_PORT(B0)) - (uint32_t)(PAL_PORT(A0))) * PAL_IOPORTS_WIDTH + PAL_PAD(led_col_pins[i]);
         uint8_t ch_idx    = pio_value % PWM_CHANNELS;
         chan_col_order[i] = ch_idx;
-#elif (SN32F2XX_PWM_DIRECTION == ROW2COL)
+#    elif (SN32F2XX_PWM_DIRECTION == ROW2COL)
     for (uint8_t i = 0; i < SN32F2XX_RGB_MATRIX_ROWS_HW; i++) {
-#    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
+#        if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
         // Only P0.0 to P2.15 can be used as pwm output
         if (led_row_pins[i] > C15) continue;
-#    endif // SN32F2XX_PWM_CONTROL
+#        endif // SN32F2XX_PWM_CONTROL
         /* We use a trick here, according to pfpa table of sn32f240b datasheet,
            pwm channel and pfpa of pin Px.y can be calculated as below:
              channel = (x*16+y)%24
@@ -165,11 +165,11 @@ static void rgb_ch_ctrl(PWMConfig *cfg) {
         uint8_t pio_value = ((uint32_t)(PAL_PORT(led_row_pins[i])) - (uint32_t)(PAL_PORT(A0))) / ((uint32_t)(PAL_PORT(B0)) - (uint32_t)(PAL_PORT(A0))) * PAL_IOPORTS_WIDTH + PAL_PAD(led_row_pins[i]);
         uint8_t ch_idx    = pio_value % PWM_CHANNELS;
         chan_row_order[i] = ch_idx;
-#endif // SN32F2XX_PWM_DIRECTION
-#if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
-        cfg->channels[ch_idx].pfpamsk = pio_value > (PWM_CHANNELS -1);
+#    endif     // SN32F2XX_PWM_DIRECTION
+#    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
+        cfg->channels[ch_idx].pfpamsk = pio_value > (PWM_CHANNELS - 1);
         cfg->channels[ch_idx].mode    = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL;
-#endif // SN32F2XX_PWM_CONTROL
+#    endif // SN32F2XX_PWM_CONTROL
     }
 }
 #elif defined(SN32F260)
@@ -179,91 +179,91 @@ static const PWMConfig pwmcfg = {
     periodticks,  /* PWM period (in ticks) 1S (1/10kHz=0.1mS 0.1ms*10000 ticks=1S) */
     rgb_callback, /* led Callback */
     .channels =
-    {
-        /* Default all channels to disabled */
-        [0 ... PWM_CHANNELS-1] = {.mode = PWM_OUTPUT_DISABLED},
-        /* Enable selected channels */
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_0)
-            [0] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_0
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_1)
-            [1] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_1
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_2)
-            [2] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_2
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_3)
-            [3] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_3
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_4)
-            [4] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_4
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_5)
-            [5] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_5
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_6)
-            [6] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_6
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_7)
-            [7] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_7
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_8)
-            [8] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_8
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_9)
-            [9] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_9
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_10)
+        {
+            /* Default all channels to disabled */
+            [0 ... PWM_CHANNELS - 1] = {.mode = PWM_OUTPUT_DISABLED},
+/* Enable selected channels */
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_0)
+            [0]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_0
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_1)
+            [1]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_1
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_2)
+            [2]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_2
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_3)
+            [3]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_3
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_4)
+            [4]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_4
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_5)
+            [5]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_5
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_6)
+            [6]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_6
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_7)
+            [7]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_7
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_8)
+            [8]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_8
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_9)
+            [9]  = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_9
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_10)
             [10] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_10
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_11)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_10
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_11)
             [11] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_11
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_12)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_11
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_12)
             [12] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_12
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_13)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_12
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_13)
             [13] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_13
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_14)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_13
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_14)
             [14] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_14
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_15)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_14
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_15)
             [15] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_15
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_16)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_15
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_16)
             [16] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_16
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_17)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_16
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_17)
             [17] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_17
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_18)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_17
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_18)
             [18] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_18
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_19)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_18
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_19)
             [19] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif  // SN32F2XX_ACTIVATE_PWM_CHAN_19
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_20)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_19
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_20)
             [20] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_20
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_21)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_20
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_21)
             [21] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_21
-#       if defined(SN32F2XX_ACTIVATE_PWM_CHAN_22)
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_21
+#    if defined(SN32F2XX_ACTIVATE_PWM_CHAN_22)
             [22] = {.mode = SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL},
-#       endif // SN32F2XX_ACTIVATE_PWM_CHAN_22
+#    endif // SN32F2XX_ACTIVATE_PWM_CHAN_22
         },
     0 /* HW dependent part.*/
 };
 
 static void rgb_ch_ctrl(void) {
     /* Enable PWM function, IOs and select the PWM modes for the LED pins */
-#if (SN32F2XX_PWM_DIRECTION == COL2ROW)
+#    if (SN32F2XX_PWM_DIRECTION == COL2ROW)
     for (uint8_t i = 0; i < SN32F2XX_RGB_MATRIX_COLS; i++) {
-#    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
+#        if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
         // Only P0.0 to P0.15 and P3.0 to P3.8 can be used as pwm output
         if (led_col_pins[i] > A15 && led_col_pins[i] < D0) continue;
-#    endif // SN32F2XX_PWM_CONTROL
+#        endif // SN32F2XX_PWM_CONTROL
         /* We use a trick here, according to pfpa table of sn32f260 datasheet,
            pwm channel and pfpa of pin Px.y can be calculated as below:
              channel = (x*16+y)%23
@@ -271,12 +271,12 @@ static void rgb_ch_ctrl(void) {
         uint8_t pio_value = ((uint32_t)(PAL_PORT(led_col_pins[i])) - (uint32_t)(PAL_PORT(A0))) / ((uint32_t)(PAL_PORT(D0)) - (uint32_t)(PAL_PORT(A0))) * PAL_IOPORTS_WIDTH + PAL_PAD(led_col_pins[i]);
         uint8_t ch_idx    = pio_value % PWM_CHANNELS;
         chan_col_order[i] = ch_idx;
-#elif (SN32F2XX_PWM_DIRECTION == ROW2COL)
+#    elif (SN32F2XX_PWM_DIRECTION == ROW2COL)
     for (uint8_t i = 0; i < SN32F2XX_RGB_MATRIX_ROWS_HW; i++) {
-#    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
+#        if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
         // Only P0.0 to P0.15 and P3.0 to P3.8 can be used as pwm output
         if (led_row_pins[i] > A15 && led_row_pins[i] < D0) continue;
-#    endif // SN32F2XX_PWM_CONTROL
+#        endif // SN32F2XX_PWM_CONTROL
         /* We use a trick here, according to pfpa table of sn32f260 datasheet,
            pwm channel and pfpa of pin Px.y can be calculated as below:
              channel = (x*16+y)%23
@@ -284,17 +284,17 @@ static void rgb_ch_ctrl(void) {
         uint8_t pio_value = ((uint32_t)(PAL_PORT(led_row_pins[i])) - (uint32_t)(PAL_PORT(A0))) / ((uint32_t)(PAL_PORT(D0)) - (uint32_t)(PAL_PORT(A0))) * PAL_IOPORTS_WIDTH + PAL_PAD(led_row_pins[i]);
         uint8_t ch_idx    = pio_value % PWM_CHANNELS;
         chan_row_order[i] = ch_idx;
-#endif // SN32F2XX_PWM_DIRECTION
+#    endif     // SN32F2XX_PWM_DIRECTION
     }
 }
 #else
-#  error Unsupported MCU. Driver instance cant be configured.
+#    error Unsupported MCU. Driver instance cant be configured.
 #endif // chip selection
 
 static void shared_matrix_rgb_enable(void) {
-#   if !defined(SN32F260)
+#if !defined(SN32F260)
     pwmcfg.callback = rgb_callback;
-#   endif // SN32F260 needs static allocation
+#endif // SN32F260 needs static allocation
     pwmEnablePeriodicNotification(&PWMD1);
 }
 
@@ -312,27 +312,27 @@ static void shared_matrix_scan_keys(matrix_row_t current_matrix[], uint8_t curre
             }
         }
         if (matrix_locked) {
-#if (DIODE_DIRECTION == COL2ROW)
-#    if (SN32F2XX_PWM_DIRECTION == DIODE_DIRECTION)
+#    if (DIODE_DIRECTION == COL2ROW)
+#        if (SN32F2XX_PWM_DIRECTION == DIODE_DIRECTION)
             matrix_read_cols_on_row(current_matrix, current_key);
-#    else
+#        else
             // For each row...
             for (uint8_t row_index = 0; row_index < ROWS_PER_HAND; row_index++) {
                 matrix_read_cols_on_row(current_matrix, row_index);
             }
 
-#    endif // DIODE_DIRECTION == SN32F2XX_PWM_DIRECTION
-#elif (DIODE_DIRECTION == ROW2COL)
-#    if (SN32F2XX_PWM_DIRECTION == DIODE_DIRECTION)
+#        endif // DIODE_DIRECTION == SN32F2XX_PWM_DIRECTION
+#    elif (DIODE_DIRECTION == ROW2COL)
+#        if (SN32F2XX_PWM_DIRECTION == DIODE_DIRECTION)
             matrix_read_rows_on_col(current_matrix, current_key, row_shifter);
-#    else
+#        else
             // For each col...
             matrix_row_t row_shifter = MATRIX_ROW_SHIFTER;
             for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++, row_shifter <<= 1) {
                 matrix_read_rows_on_col(current_matrix, current_key, row_shifter);
             }
-#    endif // SN32F2XX_PWM_DIRECTION
-#endif     // DIODE_DIRECTION
+#        endif // SN32F2XX_PWM_DIRECTION
+#    endif     // DIODE_DIRECTION
             matrix_scanned = true;
         }
     }
@@ -365,9 +365,9 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     current_row++;
     /* Check if counter has wrapped around, reset before the next pass */
     if (current_row == SN32F2XX_RGB_MATRIX_ROWS_HW) current_row = 0;
-#   if defined(SHARED_MATRIX)
+#    if defined(SHARED_MATRIX)
     uint8_t last_key_row = current_key_row;
-#   endif // SHARED_MATRIX
+#    endif // SHARED_MATRIX
     // Advance to the next key matrix row
 #    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
     if (current_row % SN32F2XX_RGB_MATRIX_ROW_CHANNELS == 2) current_key_row++;
@@ -379,9 +379,9 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     // Disable LED output before scanning the key matrix
     if (current_key_row < ROWS_PER_HAND) {
         shared_matrix_rgb_disable_output();
-#   if defined(SHARED_MATRIX)
+#    if defined(SHARED_MATRIX)
         shared_matrix_scan_keys(shared_matrix, current_key_row, last_key_row);
-#   endif // SHARED_MATRIX
+#    endif // SHARED_MATRIX
     }
     bool enable_pwm_output = false;
     for (uint8_t current_key_col = 0; current_key_col < SN32F2XX_RGB_MATRIX_COLS; current_key_col++) {
@@ -474,9 +474,9 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     // Disable LED output before scanning the key matrix
     if (current_key_col < MATRIX_COLS) {
         shared_matrix_rgb_disable_output();
-#   if defined(SHARED_MATRIX)
+#    if defined(SHARED_MATRIX)
         shared_matrix_scan_keys(shared_matrix, current_key_col, last_key_col);
-#   endif // SHARED_MATRIX
+#    endif // SHARED_MATRIX
     }
 
     bool enable_pwm_output = false;
@@ -575,28 +575,26 @@ static void rgb_callback(PWMDriver *pwmp) {
 void sn32f2xx_init(void) {
     for (uint8_t x = 0; x < SN32F2XX_RGB_MATRIX_ROWS_HW; x++) {
         gpio_set_pin_output_push_pull(led_row_pins[x]);
-#    if ((SN32F2XX_PWM_DIRECTION == COL2ROW) && (SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_RGB_OUTPUT_ACTIVE_HIGH) || \
-        (SN32F2XX_PWM_DIRECTION == ROW2COL) && (SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL == SN32F2XX_PWM_OUTPUT_ACTIVE_HIGH))
+#if ((SN32F2XX_PWM_DIRECTION == COL2ROW) && (SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_RGB_OUTPUT_ACTIVE_HIGH) || (SN32F2XX_PWM_DIRECTION == ROW2COL) && (SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL == SN32F2XX_PWM_OUTPUT_ACTIVE_HIGH))
         gpio_write_pin_low(led_row_pins[x]);
-#    elif ((SN32F2XX_PWM_DIRECTION == COL2ROW) && (SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_RGB_OUTPUT_ACTIVE_LOW) || \
-        (SN32F2XX_PWM_DIRECTION == ROW2COL) && (SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL == SN32F2XX_PWM_OUTPUT_ACTIVE_LOW))
+#elif ((SN32F2XX_PWM_DIRECTION == COL2ROW) && (SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_RGB_OUTPUT_ACTIVE_LOW) || (SN32F2XX_PWM_DIRECTION == ROW2COL) && (SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL == SN32F2XX_PWM_OUTPUT_ACTIVE_LOW))
         gpio_write_pin_high(led_row_pins[x]);
-#    endif // SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL
+#endif // SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL
     }
 
     // Determine which PWM channels we need to control
-#   if defined(SN32F240B)
+#if defined(SN32F240B)
     rgb_ch_ctrl(&pwmcfg);
-#   elif defined(SN32F260)
+#elif defined(SN32F260)
     rgb_ch_ctrl();
-#   endif // chip selection
+#endif // chip selection
 
-#   if defined(SHARED_MATRIX)
+#if defined(SHARED_MATRIX)
     // initialize matrix state: all keys off
     for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
         shared_matrix[i] = 0;
     }
-#   endif // SHARED_MATRIX
+#endif // SHARED_MATRIX
 
     pwmStart(&PWMD1, &pwmcfg);
     shared_matrix_rgb_enable();
