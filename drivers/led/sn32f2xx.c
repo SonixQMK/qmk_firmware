@@ -489,12 +489,6 @@ static void update_pwm_channels(PWMDriver *pwmp) {
 #   endif // SHARED_MATRIX
     }
 
-    for (uint8_t x = 0; x < SN32_RGB_MATRIX_COLS; x++) {
-#    if (DIODE_DIRECTION != SN32_PWM_DIRECTION)
-        gpio_set_pin_output_push_pull(led_col_pins[x]);
-#    endif // DIODE_DIRECTION != SN32_PWM_DIRECTION
-    }
-
     bool enable_pwm_output = false;
     for (uint8_t current_key_row = 0; current_key_row < MATRIX_ROWS; current_key_row++) {
         uint8_t led_index = g_led_config.matrix_co[current_key_row][current_key_col];
@@ -514,6 +508,7 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     }
     // Enable RGB output
     if (enable_pwm_output) {
+        gpio_set_pin_output_push_pull(led_col_pins[last_key_col]);
 #        if (SN32_RGB_OUTPUT_ACTIVE_LEVEL == SN32_RGB_OUTPUT_ACTIVE_HIGH)
         gpio_write_pin_high(led_col_pins[last_key_col]);
 #        elif (SN32_RGB_OUTPUT_ACTIVE_LEVEL == SN32_RGB_OUTPUT_ACTIVE_LOW)
@@ -527,6 +522,7 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     }
     // Enable RGB output
     if (enable_pwm_output) {
+        gpio_set_pin_output_push_pull(led_col_pins[last_key_col]);
 #        if (SN32_RGB_OUTPUT_ACTIVE_LEVEL == SN32_RGB_OUTPUT_ACTIVE_HIGH)
         gpio_write_pin_high(led_col_pins[current_key_col]);
 #        elif (SN32_RGB_OUTPUT_ACTIVE_LEVEL == SN32_RGB_OUTPUT_ACTIVE_LOW)
