@@ -4,12 +4,16 @@
 
 QMK (*Quantum Mechanical Keyboard*) is an open source community centered around developing computer input devices. The community encompasses all sorts of input devices, such as keyboards, mice, and MIDI devices. A core group of collaborators maintains [QMK Firmware](https://github.com/qmk/qmk_firmware), [QMK Configurator](https://config.qmk.fm), [QMK Toolbox](https://github.com/qmk/qmk_toolbox), [qmk.fm](https://qmk.fm), and this documentation with the help of community members like you.
 
+## What is SonixQMK?
+
+SonixQMK is an open source community porting QMK to the [Sonix SN32 series](https://www.sonix.com.tw/category-en-947). The community maintains forks of QMK tools on [SonixQMK Firmware](https://github.com/SonixQMK/qmk_firmware), [SonixQMK Toolbox](https://github.com/SonixQMK/qmk_toolbox), as well as original tools like [SonixFlasher](https://github.com/SonixQMK/SonixFlasherC), [Jumploader](https://github.com/SonixQMK/sonix-keyboard-bootloader), a [database](https://github.com/SonixQMK/Mechanical-Keyboard-Database) of compatible keyboards, and this documentation with the help of community members like you.
+
 ## Get Started
 
 ::: tip Basic
 [QMK Configurator](newbs_building_firmware_configurator)
 
-User friendly graphical interfaces, no programming knowledge required.
+User friendly graphical interfaces, no programming knowledge required.<sup>1</sup>
 :::
 
 ::: warning Advanced
@@ -17,6 +21,10 @@ User friendly graphical interfaces, no programming knowledge required.
 
 More powerful, but harder to use.
 :::
+
+Notes:
+
+1. SonixQMK doesn't support the QMK Configurator at this point in time.
 
 ## Make It Yours
 
