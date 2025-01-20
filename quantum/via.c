@@ -195,7 +195,29 @@ __attribute__((weak)) void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
 //
 // raw_hid_send() is called at the end, with the same buffer, which was
 // possibly modified with returned values.
+
+// NEW begin
+#ifdef VIA_OPENRGB_HYBRID
+extern uint8_t is_orgb_mode;
+#ifdef OPENRGB_ENABLE
+extern void orgb_raw_hid_receive(uint8_t *data, uint8_t length);
+#endif
+#endif
+// NEW end
+
 void raw_hid_receive(uint8_t *data, uint8_t length) {
+
+// NEW begin
+#ifdef VIA_OPENRGB_HYBRID
+    if (is_orgb_mode) {
+#ifdef OPENRGB_ENABLE
+        orgb_raw_hid_receive(data, length);
+#endif      
+        return;
+    }        
+#endif
+// NEW end
+
     uint8_t *command_id   = &(data[0]);
     uint8_t *command_data = &(data[1]);
     switch (*command_id) {

@@ -179,7 +179,7 @@ static const uint8_t openrgb_rgb_matrix_effects_indexes[] = {
 };
 static uint8_t raw_hid_buffer[RAW_EPSIZE];
 
-void raw_hid_receive(uint8_t *data, uint8_t length) {
+void orgb_raw_hid_receive(uint8_t *data, uint8_t length) {
     switch (*data) {
         case OPENRGB_GET_PROTOCOL_VERSION:
             openrgb_get_protocol_version();
