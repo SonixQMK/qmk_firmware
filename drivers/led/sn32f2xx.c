@@ -440,7 +440,7 @@ static void shared_matrix_rgb_disable_output(void) {
         gpio_set_pin_input(led_col_pins[x]);
 #    endif // DIODE_DIRECTION != SN32F2XX_PWM_DIRECTION
         // Unselect all columns before scanning the key matrix
-#    if (SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_RGB_OUTPUT_ACTIVE_LOW)
+#    if (SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_RGB_OUTPUT_ACTIVE_LOW  || defined(MATRIX_UNSELECT_DRIVE_HIGH))
         gpio_write_pin_high(led_col_pins[x]);
 #    elif (SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_RGB_OUTPUT_ACTIVE_HIGH)
         gpio_write_pin_low(led_col_pins[x]);
@@ -478,6 +478,13 @@ static void update_pwm_channels(PWMDriver *pwmp) {
         shared_matrix_scan_keys(shared_matrix, current_key_col, last_key_col);
 #    endif // SHARED_MATRIX
     }
+
+    // Disable all RGB columns before turning on PWM in case matrix read unselect high
+#    if (SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_PWM_OUTPUT_ACTIVE_HIGH && defined(MATRIX_UNSELECT_DRIVE_HIGH))
+    for (uint8_t x = 0; x < SN32F2XX_RGB_MATRIX_COLS; x++) {
+        gpio_write_pin_low(led_col_pins[x]);
+    }
+#    endif // SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_PWM_OUTPUT_ACTIVE_HIGH && defined(MATRIX_UNSELECT_DRIVE_HIGH)
 
     bool enable_pwm_output = false;
     for (uint8_t current_key_row = 0; current_key_row < MATRIX_ROWS; current_key_row++) {
