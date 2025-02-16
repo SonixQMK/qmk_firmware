@@ -50,8 +50,10 @@ __attribute__((weak)) void iton_bt_enters_connection_state(void) {}
 /**
  * Driver variables
  */
-bool    iton_bt_is_connected = false;
-uint8_t iton_bt_led_state    = 0x00;
+bool iton_bt_is_connected = false;
+#ifdef ITON_BT_ENABLE_LED_STATE
+uint8_t iton_bt_led_state = 0x00;
+#endif
 
 static uint8_t iton_bt_buffer[ITON_BT_BUFFER_LEN];
 uint8_t        iton_bt_send_kb_last_key = 0x00;
@@ -147,7 +149,9 @@ static void iton_bt_rx_cb(void *arg) {
 
         switch (iton_bt_buffer[0]) {
             case led_state:
+#    ifdef ITON_BT_ENABLE_LED_STATE
                 iton_bt_led_state = iton_bt_buffer[1];
+#    endif
                 break;
             case notification:
                 switch (iton_bt_buffer[1]) {
