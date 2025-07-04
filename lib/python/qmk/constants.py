@@ -22,7 +22,7 @@ QMK_FIRMWARE_UPSTREAM = 'qmk/qmk_firmware'
 MAX_KEYBOARD_SUBFOLDERS = 5
 
 # Supported processor types
-CHIBIOS_PROCESSORS = 'cortex-m0', 'cortex-m0plus', 'cortex-m3', 'cortex-m4', 'MKL26Z64', 'MK20DX128', 'MK20DX256', 'MK64FX512', 'MK66FX1M0', 'RP2040', 'STM32F042', 'STM32F072', 'STM32F103', 'STM32F303', 'STM32F401', 'STM32F405', 'STM32F407', 'STM32F411', 'STM32F446', 'STM32G0B1', 'STM32G431', 'STM32G474', 'STM32H723', 'STM32H733', 'STM32L412', 'STM32L422', 'STM32L432', 'STM32L433', 'STM32L442', 'STM32L443', 'GD32VF103', 'WB32F3G71', 'WB32FQ95', 'AT32F415'
+CHIBIOS_PROCESSORS = 'cortex-m0', 'cortex-m0plus', 'cortex-m3', 'cortex-m4', 'MKL26Z64', 'MK20DX128', 'MK20DX256', 'MK64FX512', 'MK66FX1M0', 'RP2040', 'STM32F042', 'STM32F072', 'STM32F103', 'STM32F303', 'STM32F401', 'STM32F405', 'STM32F407', 'STM32F411', 'STM32F446', 'STM32G0B1', 'STM32G431', 'STM32G474', 'STM32H723', 'STM32H733', 'STM32L412', 'STM32L422', 'STM32L432', 'STM32L433', 'STM32L442', 'STM32L443', 'GD32VF103', 'WB32F3G71', 'WB32FQ95', 'AT32F415', 'SN32F248F', 'SN32F248BF', 'SN32F248CF', 'SN32F268F', 'SN32F299F'
 LUFA_PROCESSORS = 'at90usb162', 'atmega16u2', 'atmega32u2', 'atmega16u4', 'atmega32u4', 'at90usb646', 'at90usb647', 'at90usb1286', 'at90usb1287', None
 VUSB_PROCESSORS = 'atmega32a', 'atmega328p', 'atmega328', 'attiny85'
 
@@ -57,6 +57,11 @@ MCU2BOOTLOADER = {
     "WB32F3G71": "wb32-dfu",
     "WB32FQ95": "wb32-dfu",
     "AT32F415": "at32-dfu",
+    "SN32F248F": "sn32-dfu",
+    "SN32F248BF": "sn32-dfu",
+    "SN32F248CF": "sn32-dfu",
+    "SN32F268F": "sn32-dfu",
+    "SN32F299F": "sn32-dfu",
     "atmega16u2": "atmel-dfu",
     "atmega32u2": "atmel-dfu",
     "atmega16u4": "atmel-dfu",
@@ -123,6 +128,13 @@ BOOTLOADER_VIDS_PIDS = {
     'hid-bootloader': {
         ("03eb", "2067"),  # QMK HID
         ("16c0", "0478")  # PJRC halfkay
+    },
+    'sn32-dfu': {
+        ("0c45", "7010"),  # SN32F260
+        ("0c45", "7040"),  # SN32F240B
+        ("0c45", "7160"),  # SN32F240C
+        ("0c45", "7900"),  # SN32F240
+        ("0c45", "7140")  # SN32F290
     }
 }
 

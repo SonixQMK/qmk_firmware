@@ -30,3 +30,9 @@ _qmk_install() {
     brew link --force arm-none-eabi-binutils
     brew link --force arm-none-eabi-gcc@8
 }
+
+_qmk_install_sonixflasher() {
+    echo "Installing sonixflasher"
+
+    brew install sonixqmk/sonixqmk/sonixflasher
+}

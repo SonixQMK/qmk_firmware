@@ -22,7 +22,7 @@
 #    error "You need to set HAL_USE_ADC to TRUE in your halconf.h to use the ADC."
 #endif
 
-#if !RP_ADC_USE_ADC1 && !STM32_ADC_USE_ADC1 && !STM32_ADC_USE_ADC2 && !STM32_ADC_USE_ADC3 && !STM32_ADC_USE_ADC4 && !WB32_ADC_USE_ADC1 && !AT32_ADC_USE_ADC1
+#if !RP_ADC_USE_ADC1 && !STM32_ADC_USE_ADC1 && !STM32_ADC_USE_ADC2 && !STM32_ADC_USE_ADC3 && !STM32_ADC_USE_ADC4 && !WB32_ADC_USE_ADC1 && !AT32_ADC_USE_ADC1  && !SN32_ADC_USE_ADC1
 #    error "You need to set one of the 'xxx_ADC_USE_ADCx' settings to TRUE in your mcuconf.h to use the ADC."
 #endif
 
@@ -82,7 +82,7 @@
 
 /* User configurable ADC options */
 #ifndef ADC_COUNT
-#    if defined(RP2040) || defined(STM32F0XX) || defined(STM32F1XX) || defined(STM32F4XX) || defined(STM32G0XX) || defined(GD32VF103) || defined(WB32F3G71xx) || defined(WB32FQ95xx) || defined(AT32F415)
+#    if defined(RP2040) || defined(STM32F0XX) || defined(STM32F1XX) || defined(STM32F4XX) || defined(STM32G0XX) || defined(GD32VF103) || defined(WB32F3G71xx) || defined(WB32FQ95xx) || defined(AT32F415) || defined(SN32F2)
 #        define ADC_COUNT 1
 #    elif defined(STM32F3XX) || defined(STM32G4XX)
 #        define ADC_COUNT 4
@@ -109,7 +109,7 @@
 #endif
 
 // For more sampling rate options, look at hal_adc_lld.h in ChibiOS
-#if !defined(ADC_SAMPLING_RATE) && !defined(RP2040)
+#if !defined(ADC_SAMPLING_RATE) && !defined(RP2040) && !defined(SN32F2)
 #    if defined(ADC_SMPR_SMP_1P5)
 #        define ADC_SAMPLING_RATE ADC_SMPR_SMP_1P5
 #    elif defined(ADC_SMPR_SMP_2P5) // STM32L4XX, STM32L4XXP, STM32G4XX, STM32WBXX
@@ -127,6 +127,12 @@
 #        define ADC_RESOLUTION ADC_CFGR_RES_10BITS
 #    else // ADCv1, ADCv5, or the bodge for ADCv2 above
 #        define ADC_RESOLUTION ADC_CFGR1_RES_10BIT
+#    endif
+#endif
+
+#if defined(SN32F2)
+#    ifndef ADC_VREF
+#        define ADC_VREF ADC_ADM_VREF_4_5V
 #    endif
 #endif
 
@@ -156,6 +162,15 @@ static ADCConversionGroup adcConversionGroup = {
 #    endif
 #elif defined(RP2040)
 // RP2040 does not have any extra config here
+#elif defined(SN32F2)
+    .vhs   = ADC_VREF,
+#    if (ADC_RESOLUTION == 12)
+    .adlen = 1,
+#    elif (ADC_RESOLUTION == 8)
+    .adlen = 0,
+#    else
+#        error "Invalid ADC_RESOLUTION for this MCU."
+#    endif
 #else
     .cfgr = ADC_CFGR_CONT | ADC_RESOLUTION,
     .smpr = {ADC_SMPR1_SMP_AN0(ADC_SAMPLING_RATE) | ADC_SMPR1_SMP_AN1(ADC_SAMPLING_RATE) | ADC_SMPR1_SMP_AN2(ADC_SAMPLING_RATE) | ADC_SMPR1_SMP_AN3(ADC_SAMPLING_RATE) | ADC_SMPR1_SMP_AN4(ADC_SAMPLING_RATE) | ADC_SMPR1_SMP_AN5(ADC_SAMPLING_RATE) | ADC_SMPR1_SMP_AN6(ADC_SAMPLING_RATE) | ADC_SMPR1_SMP_AN7(ADC_SAMPLING_RATE) | ADC_SMPR1_SMP_AN8(ADC_SAMPLING_RATE) | ADC_SMPR1_SMP_AN9(ADC_SAMPLING_RATE), ADC_SMPR2_SMP_AN10(ADC_SAMPLING_RATE) | ADC_SMPR2_SMP_AN11(ADC_SAMPLING_RATE) | ADC_SMPR2_SMP_AN12(ADC_SAMPLING_RATE) | ADC_SMPR2_SMP_AN13(ADC_SAMPLING_RATE) | ADC_SMPR2_SMP_AN14(ADC_SAMPLING_RATE) | ADC_SMPR2_SMP_AN15(ADC_SAMPLING_RATE) | ADC_SMPR2_SMP_AN16(ADC_SAMPLING_RATE) | ADC_SMPR2_SMP_AN17(ADC_SAMPLING_RATE) | ADC_SMPR2_SMP_AN18(ADC_SAMPLING_RATE)},
@@ -358,6 +373,23 @@ __attribute__((weak)) adc_mux pinToMux(pin_t pin) {
         case 27U: return TO_MUX(1, 0);
         case 28U: return TO_MUX(2, 0);
         case 29U: return TO_MUX(3, 0);
+#elif defined(SN32F2)
+        case C0:  return TO_MUX( 0,  0 );
+        case C1:  return TO_MUX( 1,  0 );
+        case C2:  return TO_MUX( 2,  0 );
+        case C3:  return TO_MUX( 3,  0 );
+        case C4:  return TO_MUX( 4,  0 );
+        case C5:  return TO_MUX( 5,  0 );
+        case C6:  return TO_MUX( 6,  0 );
+        case C7:  return TO_MUX( 7,  0 );
+        case C8:  return TO_MUX( 8,  0 );
+        case C9:  return TO_MUX( 9,  0 );
+        case C10: return TO_MUX( 10, 0 );
+        case C11: return TO_MUX( 11, 0 );
+        case C12: return TO_MUX( 12, 0 );
+        case C13: return TO_MUX( 13, 0 );
+        case C14: return TO_MUX( 14, 0 );
+        case C15: return TO_MUX( 15, 0 );
 #endif
     }
 
@@ -368,7 +400,7 @@ __attribute__((weak)) adc_mux pinToMux(pin_t pin) {
 
 static inline ADCDriver* intToADCDriver(uint8_t adcInt) {
     switch (adcInt) {
-#if RP_ADC_USE_ADC1 || STM32_ADC_USE_ADC1 || WB32_ADC_USE_ADC1 || AT32_ADC_USE_ADC1
+#if RP_ADC_USE_ADC1 || STM32_ADC_USE_ADC1 || WB32_ADC_USE_ADC1 || AT32_ADC_USE_ADC1 || SN32_ADC_USE_ADC1
         case 0:
             return &ADCD1;
 #endif
@@ -422,6 +454,8 @@ int16_t adc_read(adc_mux mux) {
 #    endif
 #elif defined(RP2040)
     adcConversionGroup.channel_mask = 1 << mux.input;
+#elif defined(SN32F2)
+    adcConversionGroup.chs = 1 << mux.input;
 #else
     adcConversionGroup.sqr[0] = ADC_SQR1_SQ1_N(mux.input)
 #    if ADC_DUMMY_CONVERSIONS_AT_START >= 1

@@ -100,6 +100,10 @@ static const I2CConfig i2cconfig = {
 #elif defined(WB32F3G71xx) || defined(WB32FQ95xx)
     I2C1_OPMODE,
     I2C1_CLOCK_SPEED,
+#elif defined(SN32F2)
+    I2C1_OPMODE,
+    I2C1_CLOCK_SPEED,
+    0,
 #else
     // This configures the I2C clock to 400khz assuming a 72Mhz clock
     // For more info : https://www.st.com/en/embedded-software/stsw-stm32126.html
@@ -138,12 +142,15 @@ __attribute__((weak)) void i2c_init(void) {
         palSetLineMode(I2C1_SDA_PIN, PAL_MODE_INPUT);
 
         chThdSleepMilliseconds(10);
-#if defined(USE_GPIOV1)
+#if !defined(SN32F2)
+        // SN32 family autoconfigures the pins
+#    if defined(USE_GPIOV1)
         palSetLineMode(I2C1_SCL_PIN, I2C1_SCL_PAL_MODE);
         palSetLineMode(I2C1_SDA_PIN, I2C1_SDA_PAL_MODE);
-#else
+#    else
         palSetLineMode(I2C1_SCL_PIN, PAL_MODE_ALTERNATE(I2C1_SCL_PAL_MODE) | PAL_OUTPUT_TYPE_OPENDRAIN);
         palSetLineMode(I2C1_SDA_PIN, PAL_MODE_ALTERNATE(I2C1_SDA_PAL_MODE) | PAL_OUTPUT_TYPE_OPENDRAIN);
+#    endif
 #endif
     }
 }

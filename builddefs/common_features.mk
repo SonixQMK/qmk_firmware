@@ -29,6 +29,8 @@ QUANTUM_SRC += \
     $(QUANTUM_DIR)/logging/debug.c \
     $(QUANTUM_DIR)/logging/sendchar.c \
     $(QUANTUM_DIR)/process_keycode/process_default_layer.c \
+    $(QUANTUM_DIR)/process_keycode/process_oneshot.c \
+    $(QUANTUM_DIR)/process_keycode/process_quantum.c \
 
 include $(QUANTUM_DIR)/nvm/rules.mk
 
@@ -219,7 +221,7 @@ ifneq ($(strip $(EEPROM_DRIVER)),none)
           COMMON_VPATH += $(PLATFORM_PATH)/$(PLATFORM_KEY)/$(DRIVER_DIR)/flash
           COMMON_VPATH += $(DRIVER_PATH)/flash
           SRC += eeprom_driver.c eeprom_legacy_emulated_flash.c legacy_flash_ops.c
-        else ifneq ($(filter $(MCU_SERIES),STM32F1xx STM32F3xx STM32F4xx STM32L4xx STM32G0xx STM32G4xx WB32F3G71xx WB32FQ95xx AT32F415 GD32VF103),)
+        else ifneq ($(filter $(MCU_SERIES),STM32F1xx STM32F3xx STM32F4xx STM32L4xx STM32G0xx STM32G4xx WB32F3G71xx WB32FQ95xx AT32F415 GD32VF103 SN32F240 SN32F240B SN32F240C SN32F260 SN32F290),)
           # Wear-leveling EEPROM implementation, backed by MCU flash
           OPT_DEFS += -DEEPROM_DRIVER -DEEPROM_WEAR_LEVELING
           SRC += eeprom_driver.c eeprom_wear_leveling.c
@@ -451,8 +453,8 @@ RGB_MATRIX_DRIVER := snled27351
 endif
 
 RGB_MATRIX_ENABLE ?= no
+VALID_RGB_MATRIX_TYPES := aw20216s is31fl3218 is31fl3236 is31fl3729 is31fl3731 is31fl3733 is31fl3736 is31fl3737 is31fl3741 is31fl3742a is31fl3743a is31fl3745 is31fl3746a snled27351 ws2812 sn32f2xx sled1734x custom
 
-VALID_RGB_MATRIX_TYPES := aw20216s is31fl3218 is31fl3236 is31fl3729 is31fl3731 is31fl3733 is31fl3736 is31fl3737 is31fl3741 is31fl3742a is31fl3743a is31fl3745 is31fl3746a snled27351 ws2812 custom
 ifeq ($(strip $(RGB_MATRIX_ENABLE)), yes)
     ifeq ($(filter $(RGB_MATRIX_DRIVER),$(VALID_RGB_MATRIX_TYPES)),)
         $(call CATASTROPHIC_ERROR,Invalid RGB_MATRIX_DRIVER,RGB_MATRIX_DRIVER="$(RGB_MATRIX_DRIVER)" is not a valid matrix type)
@@ -559,12 +561,23 @@ ifeq ($(strip $(RGB_MATRIX_ENABLE)), yes)
         SRC += snled27351.c
     endif
 
+    ifeq ($(strip $(RGB_MATRIX_DRIVER)), sled1734x)
+        I2C_DRIVER_REQUIRED = yes
+        COMMON_VPATH += $(DRIVER_PATH)/led
+        SRC += sled1734x.c
+    endif
+
     ifeq ($(strip $(RGB_MATRIX_DRIVER)), ws2812)
         WS2812_DRIVER_REQUIRED := yes
     endif
 
     ifeq ($(strip $(RGB_MATRIX_DRIVER)), apa102)
         APA102_DRIVER_REQUIRED := yes
+    endif
+
+    ifeq ($(strip $(RGB_MATRIX_DRIVER)), sn32f2xx)
+        COMMON_VPATH += $(DRIVER_PATH)/led
+        SRC += sn32f2xx.c
     endif
 
     ifeq ($(strip $(RGB_MATRIX_CUSTOM_KB)), yes)
@@ -886,7 +899,7 @@ ifeq ($(strip $(USBPD_ENABLE)), yes)
 endif
 
 BLUETOOTH_ENABLE ?= no
-VALID_BLUETOOTH_DRIVER_TYPES := bluefruit_le custom rn42
+VALID_BLUETOOTH_DRIVER_TYPES := bluefruit_le custom rn42 iton_bt
 ifeq ($(strip $(BLUETOOTH_ENABLE)), yes)
     ifeq ($(filter $(strip $(BLUETOOTH_DRIVER)),$(VALID_BLUETOOTH_DRIVER_TYPES)),)
         $(call CATASTROPHIC_ERROR,Invalid BLUETOOTH_DRIVER,BLUETOOTH_DRIVER="$(BLUETOOTH_DRIVER)" is not a valid Bluetooth driver type)
@@ -908,6 +921,11 @@ ifeq ($(strip $(BLUETOOTH_ENABLE)), yes)
         UART_DRIVER_REQUIRED = yes
         SRC += $(DRIVER_PATH)/bluetooth/bluetooth_drivers.c
         SRC += $(DRIVER_PATH)/bluetooth/rn42.c
+    endif
+
+    ifeq ($(strip $(BLUETOOTH_DRIVER)), iton_bt)
+        SRC += $(DRIVER_PATH)/bluetooth/bluetooth_drivers.c
+        SRC += $(DRIVER_PATH)/bluetooth/iton_bt.c
     endif
 endif
 

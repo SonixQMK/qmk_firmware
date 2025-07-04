@@ -46,6 +46,23 @@ static QMKSerialConfig serial_config = {
     .UARTDMACR = 0U
 };
 // clang-format on
+#elif defined(MCU_SN32) /* SN32F2 MCUs */
+// clang-format off
+static QMKSerialConfig serial_config = {
+    .speed = (SERIAL_USART_SPEED),
+    .UART_WordLength = (UART_WordLength_8b),
+    .UART_StopBits = (UART_StopBits_Two),
+    .UART_Parity = (UART_Parity_Enable|UART_Parity_Even),
+    .UART_FIFOControl = (UART_RxFIFOThreshold_1),
+    .UART_AutoBaudControl = (UART_AutoBaudControl_None),
+    .UART_Oversampling = (UART_Oversample_8),
+#    if !defined(SERIAL_USART_FULL_DUPLEX)
+    .UART_HalfDuplexMode = (UART_HalfDuplexEnable)
+#    else
+    .UART_HalfDuplexMode = (UART_FullDuplexEnable)
+#    endif
+};
+// clang-format on
 #else
 #    error MCU Familiy not supported by default, supply your own serial_config by defining SERIAL_USART_CONFIG in your keyboard files.
 #endif
@@ -183,6 +200,10 @@ __attribute__((weak)) void usart_init(void) {
 #        endif
 #    elif defined(MCU_RP) /* Raspberry Pi MCUs */
 #        error Half-duplex with the SIO driver is not supported due to hardware limitations on the RP2040, switch to the PIO driver which has half-duplex support.
+#    elif defined(MCU_SN32) /* SN32F2 MCUs */
+    // Hardware limitations, we can use one wire, but both TX and RX pins should be connected
+    // SN32 family autoconfigures the TX pin
+    palSetLineMode(SERIAL_USART_RX_PIN, PAL_MODE_INPUT);
 #    else
 #        pragma message "usart_init: MCU Familiy not supported by default, please supply your own init code by implementing usart_init() in your keyboard files."
 #    endif
@@ -209,6 +230,9 @@ __attribute__((weak)) void usart_init(void) {
 #    elif defined(MCU_RP) /* Raspberry Pi MCUs */
     palSetLineMode(SERIAL_USART_TX_PIN, PAL_MODE_ALTERNATE_UART);
     palSetLineMode(SERIAL_USART_RX_PIN, PAL_MODE_ALTERNATE_UART);
+#    elif defined(MCU_SN32) /* SN32F2 MCUs */
+    // SN32 family autoconfigures the TX pin
+    palSetLineMode(SERIAL_USART_RX_PIN, PAL_MODE_INPUT);
 #    else
 #        pragma message "usart_init: MCU Familiy not supported by default, please supply your own init code by implementing usart_init() in your keyboard files."
 #    endif

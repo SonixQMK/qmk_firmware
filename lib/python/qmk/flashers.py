@@ -96,7 +96,7 @@ def _find_bootloader():
                             details = 'halfkay'
                         else:
                             details = 'qmk-hid'
-                    elif bl in {'apm32-dfu', 'gd32v-dfu', 'kiibohd', 'stm32-dfu'}:
+                    elif bl in {'apm32-dfu', 'gd32v-dfu', 'kiibohd', 'stm32-dfu', 'sn32-dfu'}:
                         details = (vid, pid)
                     else:
                         details = None
@@ -209,6 +209,14 @@ def _flash_uf2(file):
     cli.run(['util/uf2conv.py', '--deploy', file], capture_output=False)
 
 
+def _flash_sonixflasher(details, file):
+    # SN32F260
+    if details[0] == '0c45' and details[1] == '7010':
+        cli.run(['sonixflasher', '--vidpid', f'{details[0]}:{details[1]}', '--offset', '0x200', '--file', file], capture_output=False)
+    else:
+        cli.run(['sonixflasher', '--vidpid', f'{details[0]}:{details[1]}', '--file', file], capture_output=False)
+
+
 def flasher(mcu, file):
     # Avoid "expected string or bytes-like object, got 'WindowsPath" issues
     file = file.as_posix()
@@ -241,6 +249,8 @@ def flasher(mcu, file):
     elif bl == '_uf2_compatible_':
         if _flash_uf2(file):
             return (True, "Flashing only supports uf2 format files.")
+    elif bl == 'sn32-dfu':
+        _flash_sonixflasher(details, file)
     else:
         return (True, "Known bootloader found but flashing not currently supported!")
 

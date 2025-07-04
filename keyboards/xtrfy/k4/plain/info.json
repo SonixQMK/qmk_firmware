@@ -1,0 +1,31 @@
+{
+    "keyboard_name": "Xtrfy K4",
+    "manufacturer": "Xtrfy",
+    "url": "https://cherryxtrfy.com/keyboards/k4/",
+    "processor": "SN32F248BF",
+    "maintainer": "humanplayer2",
+    "bootloader": "sn32-dfu",
+    "debounce": 1,
+    "diode_direction": "COL2ROW",
+    "features": {
+        "rgb_matrix": false,
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": false,
+        "nkro": true,
+        "dip_switch": false
+    },
+    "matrix_pins": {
+        "cols": [ "A8", "A9", "A10", "A11", "A12", "A13", "A14", "A15", "B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"],
+        "rows": [ "C15", "D11", "D10", "D9", "D8", "D7"]
+    },
+    "indicators": {
+        "caps_lock": "B12"
+    },
+    "usb": {
+        "vid": "0x0C45",
+        "device_version": "1.0.0"
+    }
+}

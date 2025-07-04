@@ -50,7 +50,7 @@
         },
         "development_board": {
             "type": "string",
-            "enum": ["promicro", "elite_c", "elite_pi", "proton_c", "kb2040", "promicro_rp2040", "blok", "michi", "bit_c_pro", "stemcell", "bluepill", "blackpill_f401", "blackpill_f411", "bonsai_c4", "helios", "liatris", "imera", "svlinky"]
+            "enum": ["promicro", "elite_c", "elite_pi", "proton_c", "kb2040", "promicro_rp2040", "blok", "michi", "bit_c_pro", "stemcell", "bluepill", "blackpill_f401", "blackpill_f411", "bonsai_c4", "helios", "liatris", "imera", "svlinky", "sn32f240b_shared_matrix"]
         },
         "pin_compatible": {
             "type": "string",
@@ -75,6 +75,11 @@
                 "MK64FX512",
                 "MK66FX1M0",
                 "RP2040",
+                "SN32F248F",
+                "SN32F248BF",
+                "SN32F248CF",
+                "SN32F268F",
+                "SN32F299F",
                 "STM32F042",
                 "STM32F072",
                 "STM32F103",
@@ -194,7 +199,7 @@
             "properties": {
                 "driver": {
                     "type": "string",
-                    "enum": ["bluefruit_le", "custom", "rn42"]
+                    "enum": ["bluefruit_le", "custom", "rn42", "iton_bt"]
                 }
             }
         },
@@ -243,7 +248,8 @@
                 "uf2boot",
                 "unknown",
                 "usbasploader",
-                "wb32-dfu"
+                "wb32-dfu",
+                "sn32-dfu"
             ]
         },
         "bootloader_instructions": {
@@ -624,7 +630,9 @@
                         "is31fl3745",
                         "is31fl3746a",
                         "snled27351",
-                        "ws2812"
+                        "ws2812",
+                        "sled1734x",
+                        "sn32f2xx"
                     ]
                 },
                 "center_point": {

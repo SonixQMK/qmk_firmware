@@ -18,6 +18,24 @@
 #        define BACKING_STORE_WRITE_SIZE 8 // from hal_efl_lld.c
 #    elif defined(QMK_MCU_FAMILY_AT32)
 #        define BACKING_STORE_WRITE_SIZE 2 // from hal_efl_lld.c
+#    elif defined(QMK_MCU_FAMILY_SN32)
+#        if defined(SN32_FLASH_LINE_SIZE) // from some family's sn32_registry.h file
+#            define BACKING_STORE_WRITE_SIZE (SN32_FLASH_LINE_SIZE)
+#        else
+#            if defined(QMK_MCU_SERIES_SN32F240)
+#                define BACKING_STORE_WRITE_SIZE 4 // from hal_efl_lld.c
+#            elif defined(QMK_MCU_SERIES_SN32F240B)
+#                define BACKING_STORE_WRITE_SIZE 4 // from hal_efl_lld.c
+#            elif defined(QMK_MCU_SERIES_SN32F240C)
+#                define BACKING_STORE_WRITE_SIZE 8 // from hal_efl_lld.c
+#            elif defined(QMK_MCU_SERIES_SN32F260)
+#                define BACKING_STORE_WRITE_SIZE 4 // from hal_efl_lld.c
+#            elif defined(QMK_MCU_SERIES_SN32F290)
+#                define BACKING_STORE_WRITE_SIZE 8 // from hal_efl_lld.c
+#            else
+#                error "ChibiOS hasn't defined SN32_FLASH_LINE_SIZE, and could not automatically determine BACKING_STORE_WRITE_SIZE" // normally defined in sn32_registry.h, should be set by SN32_FLASH_LINE_SIZE
+#            endif
+#        endif
 #    elif defined(QMK_MCU_FAMILY_STM32)
 #        if defined(STM32_FLASH_LINE_SIZE) // from some family's stm32_registry.h file
 #            define BACKING_STORE_WRITE_SIZE (STM32_FLASH_LINE_SIZE)

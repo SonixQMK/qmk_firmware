@@ -1,0 +1,15 @@
+{
+    "matrix_pins": {
+        "cols": ["B1"],
+        "rows": ["B10"]
+    },
+    "diode_direction": "COL2ROW",
+    "processor": "SN32F248BF",
+    "bootloader": "sn32-dfu",
+    "features": {
+        "bootmagic": false,
+        "mousekey": false,
+        "extrakey": false,
+        "console": true
+    }
+}

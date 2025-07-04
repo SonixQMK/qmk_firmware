@@ -1,0 +1,16 @@
+{
+    "keyboard_name": "Onekey SN32F240B",
+    "processor": "SN32F248BF",
+    "bootloader": "sn32-dfu",
+    "matrix_pins": {
+        "cols": ["A8"],
+        "rows": ["D11"]
+    },
+    "ws2812": {
+        "pin": "C1"
+    },
+    "apa102": {
+        "data_pin": "C3",
+        "clock_pin": "C4"
+    }
+}

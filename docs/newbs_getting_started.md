@@ -146,7 +146,7 @@ NOTE: remember to follow the instructions printed at the end of installation (us
 Open QMK MSYS and run the following command:
 
 ```sh
-qmk setup
+qmk setup SonixQMK/qmk_firmware -b sn32_develop
 ```
 
 In most situations you will want to answer `y` to all of the prompts.
@@ -156,7 +156,7 @@ In most situations you will want to answer `y` to all of the prompts.
 Open Terminal and run the following command:
 
 ```sh
-qmk setup
+qmk setup SonixQMK/qmk_firmware -b sn32_develop
 ```
 
 In most situations you will want to answer `y` to all of the prompts.
@@ -166,7 +166,7 @@ In most situations you will want to answer `y` to all of the prompts.
 Open your preferred terminal app and run the following command:
 
 ```sh
-qmk setup
+qmk setup SonixQMK/qmk_firmware -b sn32_develop
 ```
 
 In most situations you will want to answer `y` to all of the prompts.
@@ -183,7 +183,7 @@ Luckily, the fix is easy. Run this as your user: `echo 'PATH="$HOME/.local/bin:$
 Open your preferred terminal app and run the following command:
 
 ```sh
-qmk setup
+qmk setup SonixQMK/qmk_firmware -b sn32_develop
 ```
 
 In most situations you will want to answer `y` to all of the prompts.

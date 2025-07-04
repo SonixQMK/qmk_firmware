@@ -132,6 +132,14 @@ const rgb_matrix_driver_t rgb_matrix_driver = {
     .set_color_all = snled27351_set_color_all,
 };
 
+#elif defined(RGB_MATRIX_SLED1734X)
+const rgb_matrix_driver_t rgb_matrix_driver = {
+    .init          = sled1734x_init_drivers,
+    .flush         = sled1734x_flush,
+    .set_color     = sled1734x_set_color,
+    .set_color_all = sled1734x_set_color_all,
+};
+
 #elif defined(RGB_MATRIX_AW20216S)
 const rgb_matrix_driver_t rgb_matrix_driver = {
     .init          = aw20216s_init_drivers,
@@ -153,4 +161,11 @@ const rgb_matrix_driver_t rgb_matrix_driver = {
     .set_color_all = ws2812_set_color_all,
 };
 
+#elif defined(RGB_MATRIX_SN32F2XX)
+const rgb_matrix_driver_t rgb_matrix_driver = {
+    .init          = sn32f2xx_init,
+    .flush         = sn32f2xx_flush,
+    .set_color     = sn32f2xx_set_color,
+    .set_color_all = sn32f2xx_set_color_all,
+};
 #endif

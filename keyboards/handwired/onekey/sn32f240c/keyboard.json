@@ -1,0 +1,9 @@
+{
+    "keyboard_name": "Onekey SN32F240C",
+    "processor": "SN32F248CF",
+    "bootloader": "sn32-dfu",
+    "matrix_pins": {
+        "cols": ["A8"],
+        "rows": ["D11"]
+    }
+}

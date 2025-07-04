@@ -20,6 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdint.h>
 #include <stdbool.h>
 #include "gpio.h"
+#if defined(RGB_MATRIX_ENABLE)
+#    include "rgb_matrix_drivers.h"
+#endif
 
 /* diode directions */
 #define COL2ROW 0
@@ -49,6 +52,12 @@ uint8_t matrix_cols(void);
 void matrix_setup(void);
 /* intialize matrix for scaning. */
 void matrix_init(void);
+#if defined(SHARED_MATRIX)
+/* read matrix rows on col */
+void matrix_read_rows_on_col(matrix_row_t current_matrix[], uint8_t current_col, matrix_row_t row_shifter);
+/* read matrix cols on row */
+void matrix_read_cols_on_row(matrix_row_t current_matrix[], uint8_t current_row);
+#endif
 /* scan all key states on matrix */
 uint8_t matrix_scan(void);
 /* whether matrix scanning operations should be executed */

@@ -25,6 +25,8 @@ RGB Matrix is an abstraction layer on top of an underlying LED driver API. The l
 |[IS31FL3745](../drivers/is31fl3745)  |48      |
 |[IS31FL3746A](../drivers/is31fl3746a)|24      |
 |[SNLED27351](../drivers/snled27351)  |64      |
+|[SLED1734X](../drivers/sled1734x)    |70      |
+|[SN32F2XX](../drivers/sn32f2xx)      |?       |
 |[WS2812](../drivers/ws2812)          |?       |
 
 To assign the RGB Matrix driver, add the following to your `rules.mk`, for example:
@@ -33,6 +35,7 @@ To assign the RGB Matrix driver, add the following to your `rules.mk`, for examp
 RGB_MATRIX_DRIVER = is31fl3218
 ```
 
+---
 ## Common Configuration {#common-configuration}
 
 From this point forward the configuration is the same for all the drivers. The `led_config_t` struct provides a key electrical matrix to led index lookup table, what the physical position of each LED is on the board, and what type of key or usage the LED if the LED represents. Here is a brief example:
@@ -365,9 +368,30 @@ These are shorthands to popular colors. The `RGB` ones can be passed to the `set
 These are defined in [`color.h`](https://github.com/qmk/qmk_firmware/blob/master/quantum/color.h). Feel free to add to this list!
 
 
+## Naming
+
+If you wish to be able to use the name of an effect in your code -- say for a display indicator -- then you can enable the function `rgb_matrix_get_mode_name` in the following manner:
+
+In your keymap's `config.h`:
+```c
+#define RGB_MATRIX_MODE_NAME_ENABLE
+```
+
+In your `keymap.c`
+```c
+const char* effect_name = rgb_matrix_get_mode_name(rgb_matrix_get_mode());
+// do something with `effect_name`, like `oled_write_ln(effect_name, false);`
+```
+
+::: info
+`rgb_matrix_get_mode_name()` is not enabled by default as it increases the amount of flash memory used by the firmware based on the number of effects enabled.
+:::
+
+
 ## Additional `config.h` Options {#additional-configh-options}
 
 ```c
+#define RGB_MATRIX_MODE_NAME_ENABLE // enables rgb_matrix_get_mode_name()
 #define RGB_MATRIX_KEYRELEASES // reactive effects respond to keyreleases (instead of keypresses)
 #define RGB_MATRIX_TIMEOUT 0 // number of milliseconds to wait until rgb automatically turns off
 #define RGB_MATRIX_SLEEP // turn off effects when suspended

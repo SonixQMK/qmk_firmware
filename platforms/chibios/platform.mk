@@ -159,6 +159,10 @@ ifdef AT32_BOOTLOADER_ADDRESS
     OPT_DEFS += -DAT32_BOOTLOADER_ADDRESS=$(AT32_BOOTLOADER_ADDRESS)
 endif
 
+ifdef SN32_BOOTLOADER_ADDRESS
+    OPT_DEFS += -DSN32_BOOTLOADER_ADDRESS=$(SN32_BOOTLOADER_ADDRESS)
+endif
+
 # Work out if we need to set up the include for the bootloader definitions
 ifneq ("$(wildcard $(KEYBOARD_PATH_5)/bootloader_defs.h)","")
     OPT_DEFS += -include $(KEYBOARD_PATH_5)/bootloader_defs.h
