@@ -37,6 +37,7 @@
 #include "solid_reactive_wide.h"
 #include "solid_reactive_cross.h"
 #include "solid_reactive_nexus.h"
+#include "solid_reactive_basic.h"
 #include "splash_anim.h"
 #include "solid_splash_anim.h"
 #include "starlight_smooth_anim.h"
