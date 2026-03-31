@@ -9,12 +9,9 @@
     },
     "features": {
         "bootmagic": true,
-        "command": false,
-        "console": false,
         "extrakey": true,
         "mousekey": true,
         "rgb_matrix": true,
-        "nkro": false,
         "dip_switch": true
     },
     "bootloader_instructions": "To enter bootloader: Press FN+ESC (powered), or short boot pads and plug in.",
@@ -252,7 +249,7 @@
             {"matrix":[5, 15], "flags":4, "x":210, "y":64},
             {"matrix":[5, 16], "flags":4, "x":224, "y":64}
         ],
-        "sleep": true,
-        "timeout": 300000
+    	"sleep": true,
+   	"timeout": 300000
     }
 }

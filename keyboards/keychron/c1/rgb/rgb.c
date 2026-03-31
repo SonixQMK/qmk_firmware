@@ -16,6 +16,7 @@
  */
 
 #include "quantum.h"
+#include "config.h"
 
 #ifdef DIP_SWITCH_ENABLE
 bool dip_switch_update_kb(uint8_t index, bool active) {
@@ -39,11 +40,11 @@ void keyboard_post_init_kb(void) {
 }
 
 void housekeeping_task_kb(void) {
-    if (default_layer_state == (1U << 2)) {
+    if (default_layer_state == (1U << _MAC_BASE)) {
         gpio_write_pin(LED_MAC_PIN, LED_OS_PIN_ON_STATE);
         gpio_write_pin(LED_WIN_PIN, !LED_OS_PIN_ON_STATE);
     }
-    if (default_layer_state == (1U << 0)) {
+    if (default_layer_state == (1U << _WIN_BASE)) {
         gpio_write_pin(LED_MAC_PIN, !LED_OS_PIN_ON_STATE);
         gpio_write_pin(LED_WIN_PIN, LED_OS_PIN_ON_STATE);
     }
@@ -52,6 +53,10 @@ void housekeeping_task_kb(void) {
 void suspend_power_down_kb(void) {
     gpio_write_pin(LED_WIN_PIN, !LED_OS_PIN_ON_STATE);
     gpio_write_pin(LED_MAC_PIN, !LED_OS_PIN_ON_STATE);
+
+#ifdef RGB_MATRIX_SLEEP
+    rgb_matrix_set_suspend_state(true);
+#endif
 
     suspend_power_down_user();
 }
