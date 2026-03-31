@@ -249,7 +249,7 @@
             {"matrix":[5, 15], "flags":4, "x":210, "y":64},
             {"matrix":[5, 16], "flags":4, "x":224, "y":64}
         ],
-    	"sleep": true,
-   	"timeout": 300000
+	"sleep": true,
+	"timeout": 300000
     }
 }
