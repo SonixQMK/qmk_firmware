@@ -5,25 +5,36 @@
     "maintainer": "ITNerd69",
     "usb": {
         "pid": "0xFE02",
-		"vid": "0x3434",
-		"device_version": "1.0.0"
+        "vid": "0x3434",
+        "device_version": "1.0.0",
+        "polling_interval": 1
     },
 	"matrix_pins": {
-        "cols": ["A8", "A9", "A10", "A11", "A12", "A13", "A14", "A15", "B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7"],
-        "rows": ["C15", "D11", "D10", "D9", "D8", "D7"]
-    },
+	        "cols": ["A8", "A9", "A10", "A11", "A12", "A13", "A14", "A15", "B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7"],
+	        "rows": ["C15", "D11", "D10", "D9", "D8", "D7"],
+	        "io_delay": 1
+	    },
     "diode_direction": "COL2ROW",
 	"features": {
         "rgb_matrix": true,
         "bootmagic": true,
         "command": false,
-        "console": false,
+        "console": true,
         "extrakey": true,
         "mousekey": false,
         "nkro": true,
         "dip_switch": true
     },
-	"debounce": 5,
+    "debounce": 3,
+    "host": {
+        "default": {
+            "nkro": true
+        }
+    },
+    "build": {
+        "debounce_type": "asym_eager_defer_pk",
+        "lto": true
+    },
 	"development_board": "sn32f240b_shared_matrix",
 	"indicators": {
         "caps_lock": "B9",
@@ -217,50 +228,15 @@
 				{ "matrix": [ 5, 14 ], "flags": 4, "x": 174, "y": 64 },
 				{ "matrix": [ 5, 15 ], "flags": 4, "x": 187, "y": 64 }
 			],
-			"animations": {
-				"alphas_mods" : true,
-				"band_pinwheel_sat" : true,
-				"band_pinwheel_val" : true,
-				"band_sat" : true,
-				"band_spiral_sat" : true,
-				"band_spiral_val" : true,
-				"band_val" : true,
-				"breathing" : true,
-				"cycle_all" : true,
-				"cycle_left_right" : true,
-				"cycle_out_in" : true,
-				"cycle_out_in_dual" : true,
-				"cycle_pinwheel" : true,
-				"cycle_spiral" : true,
-				"cycle_up_down" : true,
-				"digital_rain" : true,
-				"dual_beacon" : true,
-				"gradient_left_right" : true,
-				"gradient_up_down" : true,
-				"hue_breathing" : true,
-				"hue_pendulum" : true,
-				"hue_wave" : true,
-				"jellybean_raindrops" : true,
-				"multisplash" : true,
-				"pixel_flow" : true,
-				"pixel_fractal" : true,
-				"pixel_rain" : true,
-				"rainbow_beacon" : true,
-				"rainbow_moving_chevron" : true,
-				"rainbow_pinwheels" : true,
-				"raindrops" : true,
-				"solid_multisplash" : true,
-				"solid_reactive" : true,
-				"solid_reactive_cross" : true,
-				"solid_reactive_multicross" : true,
-				"solid_reactive_multinexus" : true,
-				"solid_reactive_multiwide" : true,
-				"solid_reactive_nexus" : true,
-				"solid_reactive_simple" : true,
-				"solid_reactive_wide" : true,
-				"solid_splash" : true,
-				"splash" : true,
-				"typing_heatmap" : true
-		}
+                        "animations": {
+                                "breathing" : true,
+                                "cycle_all" : true,
+                                "gradient_left_right" : true,
+                                "rainbow_moving_chevron" : true,
+                                "solid_reactive_simple" : true,
+                                "solid_splash" : true,
+                                "splash" : true,
+                                "typing_heatmap" : true
+                        }
 	}
 }

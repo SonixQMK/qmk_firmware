@@ -176,6 +176,11 @@ void iton_bt_data_cb(SPIDriver *spip) {
  * Driver Functions
  */
 void iton_bt_init(void) {
+    // TODO: account for spiStop()
+    static bool initialized = false;
+    if (initialized) return;
+    initialized = true;
+
     setPinOutput(ITON_BT_IRQ_LINE);
     setPinInput(ITON_BT_INT_LINE);
 

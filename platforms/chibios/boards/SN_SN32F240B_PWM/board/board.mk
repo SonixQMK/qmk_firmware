@@ -8,7 +8,7 @@ BOARDSRC += $(BOARD_PATH)/board/extra.c
 BOARDINC = $(CHIBIOS_CONTRIB)/os/hal/boards/SN_SN32F240B
 
 # Optimize for speed
-OPT = 2
+OPT = s
 # Shave some extra bytes
 OPT_DEFS += -DCRT0_AREAS_NUMBER=1
 
