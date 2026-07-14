@@ -94,13 +94,19 @@ static matrix_row_t  shared_matrix[MATRIX_ROWS]; // scan values
 static volatile bool matrix_locked  = false;     // matrix update check
 static volatile bool matrix_scanned = false;
 #endif // SHARED MATRIX
-static const uint32_t periodticks                               = RGB_MATRIX_MAXIMUM_BRIGHTNESS;
-static const uint32_t freq                                      = (RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT);
+#if !defined(SN32F2XX_PWM_PERIOD_TICKS)
+#    define SN32F2XX_PWM_PERIOD_TICKS RGB_MATRIX_MAXIMUM_BRIGHTNESS
+#endif
+#if !defined(SN32F2XX_PWM_FREQUENCY)
+#    define SN32F2XX_PWM_FREQUENCY (RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT)
+#endif
+static const uint32_t periodticks                               = SN32F2XX_PWM_PERIOD_TICKS;
+static const uint32_t freq                                      = SN32F2XX_PWM_FREQUENCY;
 static const pin_t    led_row_pins[SN32F2XX_RGB_MATRIX_ROWS_HW] = SN32F2XX_RGB_MATRIX_ROW_PINS; // We expect a R,B,G order here
 static const pin_t    led_col_pins[SN32F2XX_RGB_MATRIX_COLS]    = SN32F2XX_RGB_MATRIX_COL_PINS;
 static RGB            led_state[SN32F2XX_LED_COUNT];     // led state buffer
 static RGB            led_state_buf[SN32F2XX_LED_COUNT]; // led state buffer
-bool                  led_state_buf_update_required = false;
+volatile bool         led_state_buf_update_required = false;
 #ifdef UNDERGLOW_RBG // handle underglow with flipped B,G channels
 static const uint8_t underglow_leds[UNDERGLOW_LEDS] = UNDERGLOW_IDX;
 #endif
@@ -345,7 +351,7 @@ static void shared_matrix_rgb_disable_output(void) {
     // Disable PWM outputs on column pins
     for (uint8_t y = 0; y < SN32F2XX_RGB_MATRIX_COLS; y++) {
 #    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
-        pwmDisableChannel(&PWMD1, chan_col_order[y]);
+        pwmDisableChannelI(&PWMD1, chan_col_order[y]);
 #    elif (SN32F2XX_PWM_CONTROL == SOFTWARE_PWM)
         gpio_set_pin_input(led_col_pins[y]);
 #    endif // SN32F2XX_PWM_CONTROL
@@ -397,13 +403,13 @@ static void update_pwm_channels(PWMDriver *pwmp) {
 #    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
         switch (current_row % SN32F2XX_RGB_MATRIX_ROW_CHANNELS) {
             case 0:
-                pwmEnableChannel(pwmp, chan_col_order[current_key_col], led_state[led_index].b);
+                pwmEnableChannelI(pwmp, chan_col_order[current_key_col], led_state[led_index].b);
                 break;
             case 1:
-                pwmEnableChannel(pwmp, chan_col_order[current_key_col], led_state[led_index].g);
+                pwmEnableChannelI(pwmp, chan_col_order[current_key_col], led_state[led_index].g);
                 break;
             case 2:
-                pwmEnableChannel(pwmp, chan_col_order[current_key_col], led_state[led_index].r);
+                pwmEnableChannelI(pwmp, chan_col_order[current_key_col], led_state[led_index].r);
                 break;
             default:;
         }
@@ -450,7 +456,7 @@ static void shared_matrix_rgb_disable_output(void) {
     // Disable PWM outputs on row pins
     for (uint8_t x = 0; x < SN32F2XX_RGB_MATRIX_ROWS_HW; x++) {
 #        if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
-        pwmDisableChannel(&PWMD1, chan_row_order[x]);
+        pwmDisableChannelI(&PWMD1, chan_row_order[x]);
 #        endif // SN32F2XX_PWM_CONTROL
 #        if (SN32F2XX_PWM_OUTPUT_ACTIVE_LEVEL == SN32F2XX_PWM_OUTPUT_ACTIVE_HIGH)
         gpio_write_pin_low(led_row_pins[x]);
