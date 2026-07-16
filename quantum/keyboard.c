@@ -538,7 +538,7 @@ void keyboard_init(void) {
 #ifdef BATTERY_ENABLE
     battery_init();
 #endif
-#ifdef BLUETOOTH_ENABLE
+#if defined(BLUETOOTH_ENABLE) && !defined(BLUETOOTH_MANUAL_INIT)
     bluetooth_init();
 #endif
 #ifdef HAPTIC_ENABLE

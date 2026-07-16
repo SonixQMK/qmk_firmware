@@ -1,6 +1,4 @@
-/* Copyright 2022 Philip Mourdjis <philip.j.m@gmail.com>
- * Copyright 2023 KeijoMika (https://github.com/KeijoMika)
- * Copyright 2023 Santanu Paik (https://github.com/ITNerd69)
+/* Copyright 2024 mintyleaf
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +16,9 @@
 
 #pragma once
 
-#define SN32F2XX_RGB_MATRIX_ROW_PINS { C3, C1, C0, C6, C5, C4, C9, C8, C7, C12, C11, C10, B13, C14, C13, B14, B15, D3 }
+#ifdef BLUETOOTH_ITON_BT
+#    define PAL_USE_CALLBACKS TRUE
+#    define HAL_USE_SPI      TRUE
+#endif
 
-#define DIP_BT_EN   (1)
-#define DIP_WIN_MAC (0)
-#define DIP_SWITCH_PINS { D4, D5 }
-
-#define ITON_BT_ENABLE_ACK
-
-#define DYNAMIC_KEYMAP_LAYER_COUNT 4
+#include_next <halconf.h>
