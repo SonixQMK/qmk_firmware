@@ -1028,6 +1028,12 @@ endif
 ifeq ($(strip $(I2C_DRIVER_REQUIRED)), yes)
     OPT_DEFS += -DHAL_USE_I2C=TRUE
     QUANTUM_LIB_SRC += i2c_master.c
+
+    ifeq ($(strip $(PLATFORM)), CHIBIOS)
+        ifeq ($(strip $(USE_HAL_I2C_FALLBACK)), yes)
+            OPT_DEFS += -DUSE_HAL_I2C_FALLBACK
+        endif
+    endif
 endif
 
 ifeq ($(strip $(SPI_DRIVER_REQUIRED)), yes)
