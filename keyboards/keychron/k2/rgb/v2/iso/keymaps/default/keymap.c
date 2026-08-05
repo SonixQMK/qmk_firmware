@@ -38,7 +38,7 @@ enum layer_names {
 #define KC_CRTN LGUI(KC_C)          // Cortana | Microsoft Teams
 
 #define KC_MSSN LGUI(KC_F3)         // Mission Control
-#define KC_FIND LALT(LGUI(KC_SPC))  // Finder
+#define KC_FNDR LALT(LGUI(KC_SPC))  // Finder
 #define KC_SIRI LGUI(KC_SPC)        // Siri
 #define KC_MSNP LSFT(LGUI(KC_4))    // Mac snip tool
 #define KC_MSCR LSFT(LGUI(KC_3))    // Mac screenshot
@@ -138,7 +138,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 */
   [MAC_FN] = LAYOUT_iso(
   /*  0           1           2           3           4           5           6           7           8           9           10          11          12          13          14          15         */
-      QK_BOOT,      KC_BRID,    KC_BRIU,    KC_MSSN,    KC_FIND,    RM_VALD,    RM_VALU,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_MSNP,    KC_INS,     RM_TOGG    ,
+      QK_BOOT,      KC_BRID,    KC_BRIU,    KC_MSSN,    KC_FNDR,    RM_VALD,    RM_VALU,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_MSNP,    KC_INS,     RM_TOGG    ,
       _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,                _______    ,
       _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,                            _______    ,
       _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,                _______    ,
