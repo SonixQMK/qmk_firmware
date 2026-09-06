@@ -455,7 +455,7 @@ RGB_MATRIX_DRIVER := snled27351
 endif
 
 RGB_MATRIX_ENABLE ?= no
-VALID_RGB_MATRIX_TYPES := aw20216s is31fl3218 is31fl3236 is31fl3729 is31fl3731 is31fl3733 is31fl3736 is31fl3737 is31fl3741 is31fl3742a is31fl3743a is31fl3745 is31fl3746a snled27351 ws2812 sn32f2xx sled1734x custom
+VALID_RGB_MATRIX_TYPES := aw20216s is31fl3218 is31fl3236 is31fl3729 is31fl3731 is31fl3733 is31fl3736 is31fl3737 is31fl3741 is31fl3742a is31fl3743a is31fl3745 is31fl3746a snled27351 ws2812 sn32f2xx sled1734x vs11k09a custom
 
 ifeq ($(strip $(RGB_MATRIX_ENABLE)), yes)
     ifeq ($(filter $(RGB_MATRIX_DRIVER),$(VALID_RGB_MATRIX_TYPES)),)
@@ -580,6 +580,11 @@ ifeq ($(strip $(RGB_MATRIX_ENABLE)), yes)
     ifeq ($(strip $(RGB_MATRIX_DRIVER)), sn32f2xx)
         COMMON_VPATH += $(DRIVER_PATH)/led
         SRC += sn32f2xx.c
+    endif
+
+    ifeq ($(strip $(RGB_MATRIX_DRIVER)), vs11k09a)
+        COMMON_VPATH += $(DRIVER_PATH)/led
+        SRC += vs11k09a.c
     endif
 
     ifeq ($(strip $(RGB_MATRIX_CUSTOM_KB)), yes)
