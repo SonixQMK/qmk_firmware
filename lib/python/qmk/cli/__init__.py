@@ -86,6 +86,7 @@ subcommands = [
     'qmk.cli.generate.make_dependencies',
     'qmk.cli.generate.rgb_breathe_table',
     'qmk.cli.generate.rules_mk',
+    'qmk.cli.generate.sled1734x',
     'qmk.cli.generate.version_h',
     'qmk.cli.git.submodule',
     'qmk.cli.hello',
