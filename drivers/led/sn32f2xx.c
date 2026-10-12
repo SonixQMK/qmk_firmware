@@ -370,7 +370,7 @@ static void update_pwm_channels(PWMDriver *pwmp) {
 #    endif // SHARED_MATRIX
     // Advance to the next key matrix row
 #    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
-    if (current_row % SN32F2XX_RGB_MATRIX_ROW_CHANNELS == 2) current_key_row++;
+    if (current_row % SN32F2XX_RGB_MATRIX_ROW_CHANNELS == 0) current_key_row++;
 #    elif (SN32F2XX_PWM_CONTROL == SOFTWARE_PWM)
     if (current_row % SN32F2XX_RGB_MATRIX_ROW_CHANNELS == 0) current_key_row++;
 #    endif // SN32F2XX_PWM_CONTROL
