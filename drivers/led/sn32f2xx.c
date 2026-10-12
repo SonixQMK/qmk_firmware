@@ -386,9 +386,7 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     bool enable_pwm_output = false;
     for (uint8_t current_key_col = 0; current_key_col < SN32F2XX_RGB_MATRIX_COLS; current_key_col++) {
         uint8_t led_index = g_led_config.matrix_co[current_key_row][current_key_col];
-#    if (SN32F2XX_PWM_CONTROL == SOFTWARE_PWM)
         if (led_index >= SN32F2XX_LED_COUNT) continue;
-#    endif // SN32F2XX_PWM_CONTROL
         // Check if we need to enable RGB output
         if (led_state[led_index].b > 0) enable_pwm_output |= true;
         if (led_state[led_index].g > 0) enable_pwm_output |= true;
@@ -611,6 +609,13 @@ void sn32f2xx_set_color(int index, uint8_t r, uint8_t g, uint8_t b) {
     uint8_t color_r = r * SN32F2XX_LED_OUTPUT_LUMINOSITY_R;
     uint8_t color_g = g * SN32F2XX_LED_OUTPUT_LUMINOSITY_G;
     uint8_t color_b = b * SN32F2XX_LED_OUTPUT_LUMINOSITY_B;
+
+    // A channel match at the last two counter ticks collides with the
+    // period-reset match (MR[PWM_CHANNELS] = period - 1) and is swallowed,
+    // leaving the output inactive — i.e. duty >= period - 1 renders as off.
+    if (color_r >= periodticks - 1) color_r = periodticks - 2;
+    if (color_g >= periodticks - 1) color_g = periodticks - 2;
+    if (color_b >= periodticks - 1) color_b = periodticks - 2;
 
 #ifdef UNDERGLOW_RBG
     bool flip_gb = false;
