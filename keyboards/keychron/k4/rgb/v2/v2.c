@@ -22,6 +22,9 @@
 #define BT_BATT_FILL_STEP_MS     120
 #define BT_BATT_FLASH_STEP_MS    120
 #define BT_BATT_FLASH_COUNT      3
+#define FN_INDICATOR_RED         0
+#define FN_INDICATOR_GREEN       64
+#define FN_INDICATOR_BLUE        128
 
 // dip_switch_init() (and the first dip_switch_update_kb() calls it triggers)
 // runs before bluetooth_init() in quantum/keyboard.c, so the initial mode
@@ -45,6 +48,8 @@ static bool     bt_batt_dbg_pending = false;
 static bool     mac_mode           = false;
 static uint16_t mac_fkeys          = 0;
 static bool     mac_fn_rcmd        = false;
+static bool     fn_indicator_cached = false;
+static uint8_t  fn_indicator_map[(MATRIX_ROWS * MATRIX_COLS + 7) / 8];
 
 static const uint16_t PROGMEM mac_fn_defaults[] = {
     KC_SLCT, KC_PAUS, KC_APP,   KC_F5,   RM_VALD, RM_VALU,
@@ -326,12 +331,45 @@ void iton_bt_battery_exit_low_battery_mode(void) {
     bt_batt_due = true; // refresh the level at the next housekeeping pass
 }
 
+static void k4v2_fn_indicators(void) {
+    if (!layer_state_is(K4V2_LAYER_FN)) {
+        fn_indicator_cached = false;
+        return;
+    }
+    if (!fn_indicator_cached) {
+        for (uint8_t i = 0; i < sizeof(fn_indicator_map); i++) {
+            fn_indicator_map[i] = 0;
+        }
+        for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+            for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+                uint16_t keycode = keymap_key_to_keycode(K4V2_LAYER_FN, MAKE_KEYPOS(row, col));
+                if (keycode != KC_NO && keycode != KC_TRNS) {
+                    uint8_t index = row * MATRIX_COLS + col;
+                    fn_indicator_map[index / 8] |= (uint8_t)1 << (index % 8);
+                }
+            }
+        }
+        fn_indicator_cached = true;
+    }
+    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+        for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+            uint8_t index = row * MATRIX_COLS + col;
+            if (!(fn_indicator_map[index / 8] & ((uint8_t)1 << (index % 8)))) continue;
+            uint8_t led = g_led_config.matrix_co[row][col];
+            if (led != NO_LED) {
+                rgb_matrix_set_color(led, FN_INDICATOR_RED, FN_INDICATOR_GREEN, FN_INDICATOR_BLUE);
+            }
+        }
+    }
+}
+
 // While pairing, blank the matrix and flash the active profile's key blue.
 // On connect it holds solid briefly, then control returns to the animation.
 bool rgb_matrix_indicators_kb(void) {
     if (!rgb_matrix_indicators_user()) {
         return false;
     }
+    k4v2_fn_indicators();
     if (!bt_mode) {
         return true;
     }
