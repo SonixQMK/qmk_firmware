@@ -18,6 +18,10 @@
 #define BT_LED_BASE_INDEX        20
 #define BT_LED_CONNECTED_MS      2500
 #define BT_BATT_QUERY_MS         60000
+#define BT_BATT_SHOW_MS          5000
+#define BT_BATT_FILL_STEP_MS     120
+#define BT_BATT_FLASH_STEP_MS    120
+#define BT_BATT_FLASH_COUNT      3
 
 // dip_switch_init() (and the first dip_switch_update_kb() calls it triggers)
 // runs before bluetooth_init() in quantum/keyboard.c, so the initial mode
@@ -35,6 +39,8 @@ static uint16_t bt_led_timer     = 0;
 static uint8_t  bt_batt_level    = 0;
 static uint16_t bt_batt_timer    = 0;
 static bool     bt_batt_due      = false;
+static uint16_t bt_batt_show_timer = 0;
+static bool     bt_batt_show       = false;
 static bool     bt_batt_dbg_pending = false;
 
 
@@ -44,6 +50,7 @@ static void k4v2_apply_dip_mode(bool cable_active) {
     if (bt_mode) {
         iton_bt_switch_profile(bt_profile);
         iton_bt_enable_sleep();
+        bt_batt_due = true;
         connection_set_host_noeeprom(CONNECTION_HOST_BLUETOOTH);
     } else {
         iton_bt_mode_usb();
@@ -88,6 +95,15 @@ void keyboard_post_init_kb(void) {
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     if (!process_record_user(keycode, record)) {
+        return false;
+    }
+
+    if (keycode == KC_BT_BAT) {
+        if (record->event.pressed && bt_mode) {
+            bt_batt_show_timer = timer_read();
+            bt_batt_show       = true;
+            iton_bt_query_battery_level();
+        }
         return false;
     }
 
@@ -136,6 +152,7 @@ void housekeeping_task_kb(void) {
         if (bt_mode) {
             iton_bt_switch_profile(bt_profile);
             iton_bt_enable_sleep();
+            bt_batt_due = true;
         } else {
             iton_bt_mode_usb();
         }
@@ -158,7 +175,7 @@ void housekeeping_task_kb(void) {
 
     // Battery level: query shortly after every (re)connect and periodically
     // while connected. Sends are thread-context, so callbacks only flag it.
-    if (bt_mode && iton_bt_is_connected && (bt_batt_due || timer_elapsed(bt_batt_timer) >= BT_BATT_QUERY_MS)) {
+    if (bt_mode && (bt_batt_due || (iton_bt_is_connected && timer_elapsed(bt_batt_timer) >= BT_BATT_QUERY_MS))) {
         bt_batt_due   = false;
         bt_batt_timer = timer_read();
         iton_bt_query_battery_level();
@@ -267,6 +284,41 @@ bool rgb_matrix_indicators_kb(void) {
             rgb_matrix_set_color(BT_LED_BASE_INDEX + bt_profile, 0, 0, 255);
         }
         return true;
+    }
+    if (bt_batt_show) {
+        uint16_t elapsed = timer_elapsed(bt_batt_show_timer);
+        if (elapsed < BT_BATT_SHOW_MS) {
+            uint8_t leds = 10, flash_start = 0, red = 0, green = 0, blue = 0;
+            switch (bt_batt_level) {
+                case batt_below_30:
+                    leds = 3;
+                    red  = 180;
+                    break;
+                case batt_between_30_70:
+                    leds        = 7;
+                    flash_start = 3;
+                    red         = 180;
+                    green       = 72;
+                    break;
+                case batt_above_70:
+                    flash_start = 6;
+                    green       = 180;
+                    break;
+                default:
+                    blue = 80;
+                    break;
+            }
+            uint8_t  lit_leds       = elapsed / BT_BATT_FILL_STEP_MS + 1;
+            uint16_t flash_start_ms = leds * BT_BATT_FILL_STEP_MS;
+            bool     flash_off      = elapsed >= flash_start_ms && elapsed < flash_start_ms + 2 * BT_BATT_FLASH_COUNT * BT_BATT_FLASH_STEP_MS && ((elapsed - flash_start_ms) / BT_BATT_FLASH_STEP_MS) % 2 == 0;
+            rgb_matrix_set_color_all(1, 1, 1);
+            for (uint8_t i = 0; i < 10; i++) {
+                bool lit = i < leds && i < lit_leds && !(flash_off && i >= flash_start);
+                rgb_matrix_set_color(BT_LED_BASE_INDEX + i, lit ? red : 0, lit ? green : 0, lit ? blue : 0);
+            }
+            return true;
+        }
+        bt_batt_show = false;
     }
     // Persistent reminder while the battery is low: the profile key blinks
     // red for ~0.6s every 4s without disturbing the rest of the animation.
