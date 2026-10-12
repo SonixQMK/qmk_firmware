@@ -1,0 +1,8 @@
+{
+    "features": {
+        "bluetooth": true
+    },
+    "bluetooth": {
+        "driver": "iton_bt"
+    }
+}
