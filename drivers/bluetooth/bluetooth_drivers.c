@@ -79,3 +79,17 @@ void bluetooth_send_consumer(uint16_t usage) {
     iton_bt_send_consumer(usage);
 #endif
 }
+
+void bluetooth_send_system(uint16_t usage) {
+#if defined(BLUETOOTH_ITON_BT)
+    iton_bt_send_system(usage);
+#endif
+}
+
+uint8_t bluetooth_keyboard_leds(void) {
+#if defined(BLUETOOTH_ITON_BT) && defined(ITON_BT_ENABLE_LED_STATE)
+    return iton_bt_led_state;
+#else
+    return 0;
+#endif
+}

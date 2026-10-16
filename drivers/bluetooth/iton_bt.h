@@ -94,9 +94,9 @@ enum iton_bt_notification_param {
  * Exported Variables
  */
 #ifdef ITON_BT_ENABLE_LED_STATE
-uint8_t iton_bt_led_state;
+extern uint8_t iton_bt_led_state;
 #endif
-bool iton_bt_is_connected;
+extern bool iton_bt_is_connected;
 
 /**
  * Driver Callbacks
@@ -114,6 +114,12 @@ void iton_bt_connection_successful(void);
 void iton_bt_entered_pairing(void);
 void iton_bt_disconnected(void);
 void iton_bt_enters_connection_state(void);
+
+#ifdef CONSOLE_ENABLE
+void    iton_bt_debug_stats(uint16_t *sends, uint16_t *done_tx, uint16_t *done_rx, uint16_t *timeouts, uint16_t *tx_aborted, uint16_t *rx_seq, uint16_t *int_hi, uint16_t *int_lo, uint16_t *sent_hi, uint16_t *sent_lo);
+uint8_t iton_bt_debug_rx_frame(uint16_t seq, uint8_t out[6]);
+uint8_t iton_bt_debug_reply(uint16_t send_seq, uint8_t out[12]);
+#endif
 
 /**
  * Driver Functions
