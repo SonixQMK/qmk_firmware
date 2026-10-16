@@ -390,6 +390,32 @@ $(INTERMEDIATE_OUTPUT)/src/info_deps.d:
 
 -include $(INTERMEDIATE_OUTPUT)/src/info_deps.d
 
+ifeq ("$(strip $(RGB_MATRIX_ENABLE))", "yes")
+ifeq ("$(strip $(RGB_MATRIX_DRIVER))", "sled1734x")
+SLED1734X_SRCS := $(filter-out %/default_keyboard.c,$(KEYBOARD_SRC))
+SLED1734X_OBJS := $(foreach f,$(SLED1734X_SRCS),$(INTERMEDIATE_OUTPUT)/src/sled1734x_$(subst /,_,$(basename $f)).o)
+SLED1734X_LED_OBJS := $(SLED1734X_OBJS:.o=.bin)
+
+define SLED1734X_KB_OBJ
+$(INTERMEDIATE_OUTPUT)/src/sled1734x_$(subst /,_,$(basename $1)).o: $1 $(INTERMEDIATE_OUTPUT)/cflags.txt $(INTERMEDIATE_OUTPUT)/src/info_config.h $(INTERMEDIATE_OUTPUT)/src/default_keyboard.h
+	@$$(SILENT) || printf "$$(MSG_GENERATING) $$@" | $$(AWK_CMD)
+	@$$(CC) @$(INTERMEDIATE_OUTPUT)/cflags.txt -fno-lto -c $1 -o $$@
+endef
+$(foreach f,$(SLED1734X_SRCS),$(eval $(call SLED1734X_KB_OBJ,$f)))
+
+$(INTERMEDIATE_OUTPUT)/src/sled1734x_%.bin: $(INTERMEDIATE_OUTPUT)/src/sled1734x_%.o
+	$(OBJCOPY) --dump-section .rodata.g_sled1734x_leds=$@ $<
+
+$(INTERMEDIATE_OUTPUT)/src/sled1734x_registers.c: $(SLED1734X_LED_OBJS)
+	@$(SILENT) || printf "$(MSG_GENERATING) $@" | $(AWK_CMD)
+	$(eval CMD=$(QMK_BIN) generate-sled1734x --obj $(firstword $(wildcard $(SLED1734X_LED_OBJS))) -q -o $@)
+	@$(BUILD_CMD)
+
+generated-files: $(INTERMEDIATE_OUTPUT)/src/sled1734x_registers.c
+KEYBOARD_SRC += $(INTERMEDIATE_OUTPUT)/src/sled1734x_registers.c
+endif
+endif
+
 .INTERMEDIATE : generated-files
 
 # Userspace setup and definitions

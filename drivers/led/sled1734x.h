@@ -134,6 +134,8 @@
 #    define SLED1734X_DRIVER_COUNT 1
 #endif
 
+#define SLED1734X_PWM_REGISTER_COUNT 256
+
 typedef struct sled1734x_led_t {
     uint8_t driver : 2;
     uint8_t r;
@@ -141,7 +143,18 @@ typedef struct sled1734x_led_t {
     uint8_t b;
 } PACKED sled1734x_led_t;
 
-extern const sled1734x_led_t PROGMEM g_sled1734x_leds[SLED1734X_LED_COUNT];
+typedef enum sled1734x_color_channel_t {
+    RED,
+    GREEN,
+    BLUE,
+} sled1734x_color_channel_t;
+
+typedef struct sled1734x_register_t {
+    uint8_t                   led_index;
+    sled1734x_color_channel_t color_channel;
+} PACKED sled1734x_register_t;
+
+extern const sled1734x_register_t PROGMEM g_sled1734x_registers[SLED1734X_DRIVER_COUNT][SLED1734X_PWM_REGISTER_COUNT];
 
 void sled1734x_init_drivers(void);
 void sled1734x_init(uint8_t index);
