@@ -90,8 +90,41 @@
 #    endif
 #endif
 
+#if defined(USE_HAL_I2C_FALLBACK)
+#    ifndef I2C1_CLOCK_SPEED
+#        define I2C1_CLOCK_SPEED 100000 /* 400000 */
+#    endif
+#    if SW_I2C_USE_OSAL_DELAY == TRUE
+#        ifndef SW_I2C_DELAY_TICKS
+#            define SW_I2C_DELAY_TICKS ((CH_CFG_ST_FREQUENCY + I2C1_CLOCK_SPEED - 1) / (2 * I2C1_CLOCK_SPEED))
+#        endif
+#    else
+#        ifndef SW_I2C_DELAY_LOOP_CYCLES
+#            define SW_I2C_DELAY_LOOP_CYCLES 16
+#        endif
+__attribute__((weak)) void i2c_sw_delay(void) {
+    volatile uint32_t cycles = SystemCoreClock / (2 * I2C1_CLOCK_SPEED * SW_I2C_DELAY_LOOP_CYCLES);
+
+    chSysLock();
+    while (cycles--) {
+        __asm__ volatile("nop");
+    }
+    chSysUnlock();
+}
+#    endif
+#endif
+
 static const I2CConfig i2cconfig = {
-#if defined(USE_I2CV1_CONTRIB)
+#if defined(USE_HAL_I2C_FALLBACK)
+    .addr10 = false,
+    .scl    = I2C1_SCL_PIN,
+    .sda    = I2C1_SDA_PIN,
+#    if SW_I2C_USE_OSAL_DELAY == TRUE
+    .ticks = SW_I2C_DELAY_TICKS,
+#    else
+    .delay = i2c_sw_delay,
+#    endif
+#elif defined(USE_I2CV1_CONTRIB)
     I2C1_CLOCK_SPEED,
 #elif defined(USE_I2CV1)
     I2C1_OPMODE,
