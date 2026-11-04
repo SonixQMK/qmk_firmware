@@ -64,10 +64,39 @@ const sled1734x_led PROGMEM g_sled1734x_leds[SLED1734X_LED_COUNT] = {
 
 In this example, the red, green and blue channels for the first LED index on driver 0 all have their anodes connected to the `D` pin, and their cathodes on the `CA1`, `CA2` and `CA3` pins respectively.
 
+To optimize RAM usage, the mapping used by the driver code is actually the inverse - a `g_sled1734x_registers` table, binding each register to an LED and color channel.
+That mapping is generated automatically at build time by the `qmk generate-sled1734x` command. It looks like this:
+
+```c
+const sled1734x_register_t PROGMEM g_sled1734x_registers[SLED1734X_DRIVER_COUNT][SLED1734X_PWM_REGISTER_COUNT] = {
+    [0] = {
+        // default value: NO_LED
+        [0 ... SLED1734X_PWM_REGISTER_COUNT - 1] = {.led_index = NO_LED, .color_channel = RED},
+
+        [CA3_D] = {.led_index = 0, .color_channel = RED},
+        [CA1_D] = {.led_index = 0, .color_channel = GREEN},
+        [CA2_D] = {.led_index = 0, .color_channel = BLUE},
+        // etc...
+    },
+};
+```
+
+Each entry specifies which LED index that register drives, and which color channel (`RED`, `GREEN` or `BLUE`) it corresponds to. Registers that aren't wired to an LED are set to the value of `NO_LED`. In the above example, the sparse initializer sets this for every register before the specific mappings are applied.
+
 These values correspond to the register indices as shown in the datasheet on page 64.
 At the moment, the driver supports MATRIX TYPE 3 only.
 
 ## API {#api}
+
+### `enum sled1734x_color_channel_t` {#api-sled1734x-color-channel-t}
+
+Lists out the color channels, which a register can control.
+
+#### Values {#api-sled1734x-color-channel-t-values}
+
+ - `RED`
+ - `GREEN`
+ - `BLUE`
 
 ### `struct sled1734x_led_t` {#api-sled1734x-led-t}
 
@@ -85,6 +114,17 @@ Contains the PWM register addresses for a single RGB LED.
    The output PWM register address for the LED's blue channel (RGB driver only).
  - `uint8_t v`
    The output PWM register address for the LED (single-color driver only).
+
+### `struct sled1734x_register_t` {#api-sled1734x-register-t}
+
+Describes which LED index and color channel a single PWM register is wired to. One entry exists for every register in the `g_sled1734x_registers` table.
+
+#### Members {#api-sled1734x-register-t-members}
+
+ - `uint8_t led_index`
+   The index of the LED that this register drives, or `NO_LED` if the register isn't connected to an LED.
+ - `sled1734x_color_channel_t color`
+   The color channel that this register drives: `RED`, `GREEN` or `BLUE`.
 
 ---
 
@@ -134,7 +174,7 @@ Set the color of a single LED (RGB driver only). This function does not immediat
 #### Arguments {#api-sled1734x-set-color-arguments}
 
  - `int index`
-   The LED index (ie. the index into the `g_sled1734x_leds` array).
+   The LED index, as referenced by the `led_index` field of entries in the `g_sled1734x_registers` table.
  - `uint8_t red`
    The red value to set.
  - `uint8_t green`
@@ -166,7 +206,7 @@ Configure the LED control registers for a single LED (RGB driver only). This fun
 #### Arguments {#api-sled1734x-set-led-control-register-rgb-arguments}
 
  - `uint8_t index`
-   The LED index (ie. the index into the `g_sled1734x_leds` array).
+   The LED index, as referenced by the `led_index` field of entries in the `g_sled1734x_registers` table.
  - `bool red`
    Enable or disable the red channel.
  - `bool green`
