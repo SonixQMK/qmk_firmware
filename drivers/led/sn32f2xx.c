@@ -72,6 +72,9 @@
 static uint8_t chan_col_order[SN32F2XX_RGB_MATRIX_COLS] = {0}; // track the channel col order
 static uint8_t current_row                              = 0;   // LED row scan counter
 static uint8_t current_key_row                          = 0;   // key row scan counter
+#    if defined(SHARED_MATRIX) && (DIODE_DIRECTION == ROW2COL)
+static uint8_t scan_key_col = 0; // key col scan counter
+#    endif
 #    if (SN32F2XX_PWM_CONTROL == SOFTWARE_PWM)
 static uint8_t led_duty_cycle[SN32F2XX_RGB_MATRIX_COLS] = {0}; // track the channel duty cycle
 #    endif
@@ -84,7 +87,7 @@ static uint8_t last_key_col                                = 0;   // key col sca
 static uint8_t led_duty_cycle[SN32F2XX_RGB_MATRIX_ROWS_HW] = {0}; // track the channel duty cycle
 #    endif
 #endif
-#if (DIODE_DIRECTION == ROW2COL)
+#if (DIODE_DIRECTION == ROW2COL) && (defined(SHARED_MATRIX) || (SN32F2XX_PWM_DIRECTION == ROW2COL))
 static matrix_row_t row_shifter = MATRIX_ROW_SHIFTER;
 #endif
 #if defined(SHARED_MATRIX)
@@ -323,16 +326,9 @@ static void shared_matrix_scan_keys(matrix_row_t current_matrix[], uint8_t curre
 
 #        endif // DIODE_DIRECTION == SN32F2XX_PWM_DIRECTION
 #    elif (DIODE_DIRECTION == ROW2COL)
-#        if (SN32F2XX_PWM_DIRECTION == DIODE_DIRECTION)
+            // One column per call in either PWM direction, so that the row lines settle between reads
             matrix_read_rows_on_col(current_matrix, current_key, row_shifter);
-#        else
-            // For each col...
-            matrix_row_t row_shifter = MATRIX_ROW_SHIFTER;
-            for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++, row_shifter <<= 1) {
-                matrix_read_rows_on_col(current_matrix, current_key, row_shifter);
-            }
-#        endif // SN32F2XX_PWM_DIRECTION
-#    endif     // DIODE_DIRECTION
+#    endif // DIODE_DIRECTION
             matrix_scanned = true;
         }
     }
@@ -365,7 +361,7 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     current_row++;
     /* Check if counter has wrapped around, reset before the next pass */
     if (current_row == SN32F2XX_RGB_MATRIX_ROWS_HW) current_row = 0;
-#    if defined(SHARED_MATRIX)
+#    if defined(SHARED_MATRIX) && (DIODE_DIRECTION == COL2ROW)
     uint8_t last_key_row = current_key_row;
 #    endif // SHARED_MATRIX
     // Advance to the next key matrix row
@@ -380,8 +376,21 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     if (current_key_row < ROWS_PER_HAND) {
         shared_matrix_rgb_disable_output();
 #    if defined(SHARED_MATRIX)
+#        if (DIODE_DIRECTION == ROW2COL)
+        // With ROW2COL diodes, read one key column on each LED step
+        uint8_t last_scan_col = scan_key_col;
+        scan_key_col++;
+        if (scan_key_col < MATRIX_COLS) {
+            row_shifter <<= 1;
+        } else {
+            scan_key_col = 0;
+            row_shifter  = MATRIX_ROW_SHIFTER;
+        }
+        shared_matrix_scan_keys(shared_matrix, scan_key_col, last_scan_col);
+#        else
         shared_matrix_scan_keys(shared_matrix, current_key_row, last_key_row);
-#    endif // SHARED_MATRIX
+#        endif // DIODE_DIRECTION
+#    endif     // SHARED_MATRIX
     }
     bool enable_pwm_output = false;
     for (uint8_t current_key_col = 0; current_key_col < SN32F2XX_RGB_MATRIX_COLS; current_key_col++) {
