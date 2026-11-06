@@ -384,15 +384,18 @@ static void update_pwm_channels(PWMDriver *pwmp) {
 #    endif // SHARED_MATRIX
     }
     bool enable_pwm_output = false;
+    // Row of the pin enabled below. On the last channel of a row, current_key_row is the next row.
+    uint8_t lit_row = current_row / SN32F2XX_RGB_MATRIX_ROW_CHANNELS;
     for (uint8_t current_key_col = 0; current_key_col < SN32F2XX_RGB_MATRIX_COLS; current_key_col++) {
         uint8_t led_index = g_led_config.matrix_co[current_key_row][current_key_col];
+        uint8_t lit_index = g_led_config.matrix_co[lit_row][current_key_col];
 #    if (SN32F2XX_PWM_CONTROL == SOFTWARE_PWM)
         if (led_index >= SN32F2XX_LED_COUNT) continue;
 #    endif // SN32F2XX_PWM_CONTROL
         // Check if we need to enable RGB output
-        if (led_state[led_index].b > 0) enable_pwm_output |= true;
-        if (led_state[led_index].g > 0) enable_pwm_output |= true;
-        if (led_state[led_index].r > 0) enable_pwm_output |= true;
+        if (led_state[lit_index].b > 0) enable_pwm_output |= true;
+        if (led_state[lit_index].g > 0) enable_pwm_output |= true;
+        if (led_state[lit_index].r > 0) enable_pwm_output |= true;
         // Update matching RGB channel PWM configuration
 #    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
         switch (current_row % SN32F2XX_RGB_MATRIX_ROW_CHANNELS) {
