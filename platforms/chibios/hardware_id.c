@@ -15,6 +15,9 @@ __attribute__((weak)) hardware_id_t get_hardware_id(void) {
     id.data[0] = (uint32_t)(*((uint32_t *)UID_BASE));
     id.data[1] = (uint32_t)(*((uint32_t *)(UID_BASE + 4)));
     id.data[2] = (uint32_t)(*((uint32_t *)(UID_BASE + 8)));
+#elif defined(SN_UC)
+    id.data[0] = SN_UC->L4BYTE;
+    id.data[1] = SN_UC->H4BYTE;
 #endif
     return id;
 }
