@@ -91,7 +91,6 @@ static matrix_row_t row_shifter = MATRIX_ROW_SHIFTER;
 extern matrix_row_t  raw_matrix[MATRIX_ROWS];    // raw values
 extern matrix_row_t  matrix[MATRIX_ROWS];        // debounced values
 static matrix_row_t  shared_matrix[MATRIX_ROWS]; // scan values
-static volatile bool matrix_locked  = false;     // matrix update check
 static volatile bool matrix_scanned = false;
 #endif // SHARED MATRIX
 static const uint32_t periodticks                               = RGB_MATRIX_MAXIMUM_BRIGHTNESS;
@@ -299,43 +298,32 @@ static void shared_matrix_rgb_enable(void) {
 }
 
 #if defined(SHARED_MATRIX)
-static void shared_matrix_scan_keys(matrix_row_t current_matrix[], uint8_t current_key, uint8_t last_key) {
-    // Scan the key matrix row or col, depending on DIODE_DIRECTION
-    static uint8_t first_scanned;
-    if (!matrix_scanned) {
-        if (!matrix_locked) {
-            matrix_locked = true;
-            first_scanned = current_key;
-        } else {
-            if ((last_key != current_key) && (current_key == first_scanned)) {
-                matrix_locked = false;
-            }
-        }
-        if (matrix_locked) {
+static void shared_matrix_scan_keys(matrix_row_t current_matrix[], uint8_t current_key) {
+    // Scan the key matrix row or col, depending on DIODE_DIRECTION. The main thread may not have taken the previous
+    // read yet, because a main loop pass that renders LEDs takes several LED steps. The ISR does not wait for it, so
+    // no line goes unread.
 #    if (DIODE_DIRECTION == COL2ROW)
 #        if (SN32F2XX_PWM_DIRECTION == DIODE_DIRECTION)
-            matrix_read_cols_on_row(current_matrix, current_key);
+    matrix_read_cols_on_row(current_matrix, current_key);
 #        else
-            // For each row...
-            for (uint8_t row_index = 0; row_index < ROWS_PER_HAND; row_index++) {
-                matrix_read_cols_on_row(current_matrix, row_index);
-            }
+    // For each row...
+    for (uint8_t row_index = 0; row_index < ROWS_PER_HAND; row_index++) {
+        matrix_read_cols_on_row(current_matrix, row_index);
+    }
 
 #        endif // DIODE_DIRECTION == SN32F2XX_PWM_DIRECTION
 #    elif (DIODE_DIRECTION == ROW2COL)
 #        if (SN32F2XX_PWM_DIRECTION == DIODE_DIRECTION)
-            matrix_read_rows_on_col(current_matrix, current_key, row_shifter);
+    matrix_read_rows_on_col(current_matrix, current_key, row_shifter);
 #        else
-            // For each col...
-            matrix_row_t row_shifter = MATRIX_ROW_SHIFTER;
-            for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++, row_shifter <<= 1) {
-                matrix_read_rows_on_col(current_matrix, current_key, row_shifter);
-            }
+    // For each col...
+    matrix_row_t row_shifter = MATRIX_ROW_SHIFTER;
+    for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++, row_shifter <<= 1) {
+        matrix_read_rows_on_col(current_matrix, current_key, row_shifter);
+    }
 #        endif // SN32F2XX_PWM_DIRECTION
 #    endif     // DIODE_DIRECTION
-            matrix_scanned = true;
-        }
-    }
+    matrix_scanned = true;
 }
 #endif // SHARED_MATRIX
 
@@ -365,9 +353,6 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     current_row++;
     /* Check if counter has wrapped around, reset before the next pass */
     if (current_row == SN32F2XX_RGB_MATRIX_ROWS_HW) current_row = 0;
-#    if defined(SHARED_MATRIX)
-    uint8_t last_key_row = current_key_row;
-#    endif // SHARED_MATRIX
     // Advance to the next key matrix row
 #    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
     if (current_row % SN32F2XX_RGB_MATRIX_ROW_CHANNELS == 2) current_key_row++;
@@ -380,7 +365,7 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     if (current_key_row < ROWS_PER_HAND) {
         shared_matrix_rgb_disable_output();
 #    if defined(SHARED_MATRIX)
-        shared_matrix_scan_keys(shared_matrix, current_key_row, last_key_row);
+        shared_matrix_scan_keys(shared_matrix, current_key_row);
 #    endif // SHARED_MATRIX
     }
     bool enable_pwm_output = false;
@@ -475,7 +460,7 @@ static void update_pwm_channels(PWMDriver *pwmp) {
     if (current_key_col < MATRIX_COLS) {
         shared_matrix_rgb_disable_output();
 #    if defined(SHARED_MATRIX)
-        shared_matrix_scan_keys(shared_matrix, current_key_col, last_key_col);
+        shared_matrix_scan_keys(shared_matrix, current_key_col);
 #    endif // SHARED_MATRIX
     }
 
