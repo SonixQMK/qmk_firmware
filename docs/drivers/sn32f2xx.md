@@ -72,6 +72,7 @@ Add the following to your `config.h`:
 |`SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL` |`SN32F2XX_RGB_OUTPUT_ACTIVE_HIGH` |The logic level that enables RGB output. Depends on transistor controlling RGB sinks                |
 |`SN32F2XX_PWM_DIRECTION`           |`DIODE_DIRECTION`                 |The scanning logic direction for the LED matrix                                                     |
 |`SN32F2XX_PWM_CONTROL`             |`HARDWARE_PWM`                    |Toggles hardware or software control for the PWM                                                    |
+|`SN32F2XX_PWM_FREQUENCY`           |`32768 * RGB_MATRIX_LED_PROCESS_LIMIT` |PWM counter clock in Hz. The driver lights one LED line in each PWM period of `RGB_MATRIX_MAXIMUM_BRIGHTNESS` counts, and with a shared matrix it reads one key line between periods |
 |`SN32F2XX_LED_OUTPUT_LUMINOSITY_R` |`1`                               |Luminosity correction factor for the Red channel                                                    |
 |`SN32F2XX_LED_OUTPUT_LUMINOSITY_G` |`1`                               |Luminosity correction factor for the Green channel                                                  |
 |`SN32F2XX_LED_OUTPUT_LUMINOSITY_B` |`1`                               |Luminosity correction factor for the Blue channel                                                   |

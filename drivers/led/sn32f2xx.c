@@ -95,7 +95,7 @@ static volatile bool matrix_locked  = false;     // matrix update check
 static volatile bool matrix_scanned = false;
 #endif // SHARED MATRIX
 static const uint32_t periodticks                               = RGB_MATRIX_MAXIMUM_BRIGHTNESS;
-static const uint32_t freq                                      = (RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT);
+static const uint32_t freq                                      = SN32F2XX_PWM_FREQUENCY;
 static const pin_t    led_row_pins[SN32F2XX_RGB_MATRIX_ROWS_HW] = SN32F2XX_RGB_MATRIX_ROW_PINS; // We expect a R,B,G order here
 static const pin_t    led_col_pins[SN32F2XX_RGB_MATRIX_COLS]    = SN32F2XX_RGB_MATRIX_COL_PINS;
 static RGB            led_state[SN32F2XX_LED_COUNT];     // led state buffer
@@ -126,7 +126,7 @@ static void rgb_callback(PWMDriver *pwmp);
 /* PWM configuration structure. We use timer CT16B1 with 24 channels. */
 static PWMConfig pwmcfg = {
     freq,        /* PWM clock frequency. */
-    periodticks, /* PWM period = periodticks * (1 / CH_CFG_ST_FREQUENCY) ≈ 255 * (1 / 187500) ≈ 1.36 ms */
+    periodticks, /* PWM period, in counts of the PWM clock. */
     NULL,        /* RGB Callback */
     {
         /* Default all channels to disabled - Channels will be configured during init */
@@ -176,7 +176,7 @@ static void rgb_ch_ctrl(PWMConfig *cfg) {
 /* PWM configuration structure. We use timer CT16B1 with 23 channels. */
 static const PWMConfig pwmcfg = {
     freq,         /* PWM clock frequency. */
-    periodticks,  /* PWM period (in ticks) 1S (1/10kHz=0.1mS 0.1ms*10000 ticks=1S) */
+    periodticks,  /* PWM period, in counts of the PWM clock. */
     rgb_callback, /* led Callback */
     .channels =
         {

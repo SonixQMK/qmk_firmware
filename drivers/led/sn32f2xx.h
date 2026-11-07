@@ -49,6 +49,11 @@
 #    define SN32F2XX_PWM_DIRECTION DIODE_DIRECTION
 #endif
 
+// PWM counter clock in Hz. 32768 is 8 * 16 * 16 * 16, the product of the default RGB Matrix step sizes.
+#if !defined(SN32F2XX_PWM_FREQUENCY)
+#    define SN32F2XX_PWM_FREQUENCY (32768 * RGB_MATRIX_LED_PROCESS_LIMIT)
+#endif
+
 #if !defined(SN32F2XX_RGB_MATRIX_ROW_CHANNELS)
 #    define SN32F2XX_RGB_MATRIX_ROW_CHANNELS 3
 #endif
