@@ -80,7 +80,9 @@ static uint8_t led_duty_cycle[SN32F2XX_RGB_MATRIX_COLS] = {0}; // track the chan
 static uint8_t chan_row_order[SN32F2XX_RGB_MATRIX_ROWS_HW] = {0}; // track the channel row order
 static uint8_t current_key_col                             = 0;   // key col scan counter
 static uint8_t last_key_col                                = 0;   // key col scan counter
-#    if (SN32F2XX_PWM_CONTROL == SOFTWARE_PWM)
+#    if (SN32F2XX_PWM_CONTROL == HARDWARE_PWM)
+static bool last_col_output = false; // whether the values loaded for last_key_col turn on an LED
+#    elif (SN32F2XX_PWM_CONTROL == SOFTWARE_PWM)
 static uint8_t led_duty_cycle[SN32F2XX_RGB_MATRIX_ROWS_HW] = {0}; // track the channel duty cycle
 #    endif
 #endif
@@ -496,8 +498,10 @@ static void update_pwm_channels(PWMDriver *pwmp) {
         pwmEnableChannelI(pwmp, chan_row_order[(led_row_id + 1)], led_state[led_index].b);
         pwmEnableChannelI(pwmp, chan_row_order[(led_row_id + 2)], led_state[led_index].g);
     }
-    // Enable RGB output
-    if (enable_pwm_output) {
+    // Column last_key_col shows the values loaded on the previous step, so turn it on only if those values turn on an LED
+    bool enable_last_col = last_col_output;
+    last_col_output      = enable_pwm_output;
+    if (enable_last_col) {
         gpio_set_pin_output_push_pull(led_col_pins[last_key_col]);
 #        if (SN32F2XX_RGB_OUTPUT_ACTIVE_LEVEL == SN32F2XX_RGB_OUTPUT_ACTIVE_HIGH)
         gpio_write_pin_high(led_col_pins[last_key_col]);
