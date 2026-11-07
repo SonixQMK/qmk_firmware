@@ -158,6 +158,18 @@ bool backing_store_write(uint32_t address, backing_store_int_t value) {
     return flashProgram(flash, offset, sizeof(value), (const uint8_t *)&value) == FLASH_NO_ERROR;
 }
 
+#if defined(QMK_MCU_SERIES_SN32F240B)
+// A flash cycle takes about the same time for one word and for a full 64-byte page, so this function programs whole pages.
+// An erase sets all bits to 0 on this MCU, so the values do not need to be inverted.
+bool backing_store_write_bulk(uint32_t address, backing_store_int_t *values, size_t item_count) {
+    uint32_t offset = (base_offset + address);
+    size_t   length = item_count * sizeof(backing_store_int_t);
+    bs_dprintf("Write ");
+    wl_dump(offset, values, length);
+    return flashProgram(flash, offset, length, (const uint8_t *)values) == FLASH_NO_ERROR;
+}
+#endif // defined(QMK_MCU_SERIES_SN32F240B)
+
 bool backing_store_lock(void) {
     bs_dprintf("Lock  \n");
     eflStop(&EFLD1);
