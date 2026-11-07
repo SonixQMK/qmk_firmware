@@ -18,6 +18,7 @@
 #include "matrix.h"
 #include "rgb_matrix.h"
 #include "sn32f2xx.h"
+#include "wait.h"
 
 #define ROWS_PER_HAND (MATRIX_ROWS)
 
@@ -589,13 +590,6 @@ void sn32f2xx_init(void) {
     rgb_ch_ctrl();
 #endif // chip selection
 
-#if defined(SHARED_MATRIX)
-    // initialize matrix state: all keys off
-    for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
-        shared_matrix[i] = 0;
-    }
-#endif // SHARED_MATRIX
-
     pwmStart(&PWMD1, &pwmcfg);
     shared_matrix_rgb_enable();
 }
@@ -650,8 +644,29 @@ void sn32f2xx_set_color_all(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 #if defined(SHARED_MATRIX)
+// Reads all keys from thread context for a scan before the PWM interrupt runs
+static void shared_matrix_scan_all_keys(void) {
+#    if (DIODE_DIRECTION == COL2ROW)
+    for (uint8_t row_index = 0; row_index < ROWS_PER_HAND; row_index++) {
+        matrix_read_cols_on_row(shared_matrix, row_index);
+        wait_us(MATRIX_IO_DELAY);
+    }
+#    elif (DIODE_DIRECTION == ROW2COL)
+    matrix_row_t col_shifter = MATRIX_ROW_SHIFTER;
+    for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++, col_shifter <<= 1) {
+        matrix_read_rows_on_col(shared_matrix, col_index, col_shifter);
+        wait_us(MATRIX_IO_DELAY);
+    }
+#    endif // DIODE_DIRECTION
+}
+
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
-    if (!matrix_scanned) return false; // Nothing to process until we have the matrix scanned
+    if (PWMD1.state != PWM_READY) {
+        // Bootmagic runs before rgb_matrix_init starts PWM
+        shared_matrix_scan_all_keys();
+    } else if (!matrix_scanned) {
+        return false; // Nothing to process until we have the matrix scanned
+    }
 
     bool changed = memcmp(raw_matrix, shared_matrix, sizeof(shared_matrix)) != 0;
     if (changed) memcpy(raw_matrix, shared_matrix, sizeof(shared_matrix));
