@@ -9,10 +9,17 @@
 
 #include "timer.h"
 
+/* Size of a stored report (last sent report, for GET_REPORT and idle handling).
+ * Only HID IN endpoints store reports and the largest of them is 32 bytes;
+ * usb_endpoints.c checks every endpoint with report storage against this size. */
+#ifndef USB_REPORT_STORAGE_SIZE
+#    define USB_REPORT_STORAGE_SIZE 32
+#endif
+
 typedef struct {
     time_msecs_t idle_rate;
     systime_t    last_report;
-    uint8_t      data[64];
+    uint8_t      data[USB_REPORT_STORAGE_SIZE];
     size_t       length;
 } usb_fs_report_t;
 
