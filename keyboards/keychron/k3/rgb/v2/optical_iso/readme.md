@@ -25,3 +25,12 @@ Enter the bootloader in 2 ways:
 
 * **Physical Bootloader Pins**: Remove the backcover of the Keyboard and short pin next to MCU labeled BOOT to ground.
 * **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available. In the default keymap Fn+Esc.
+
+## Bluetooth
+
+Bluetooth works through the built-in ITON module (see `../k3_bt.c`):
+
+* Slide the switch to **BT** (the keyboard restarts).
+* **Fn+1/2/3** selects a profile; **hold for 3 s** to pair (the key flashes blue while the module is pairing, solid once connected).
+* **Fn+B** shows the battery level on the number row.
+* After 10 min idle while connected (40 s while not connected) the backlight turns off; any key wakes it.
