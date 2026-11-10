@@ -27,3 +27,24 @@
 #ifndef WEAR_LEVELING_EFL_OMIT_LAST_SECTOR_COUNT
 #    define WEAR_LEVELING_EFL_OMIT_LAST_SECTOR_COUNT 1
 #endif
+
+/* The SN32F26x has only 2 KB of RAM. */
+
+/* Logical EEPROM is cached in RAM: 128 bytes hold the 37-byte eeconfig core block
+ * with room for keyboard/user data. The backing store keeps the usual 4x ratio. */
+#ifndef WEAR_LEVELING_LOGICAL_SIZE
+#    define WEAR_LEVELING_LOGICAL_SIZE 128
+#endif
+#ifndef WEAR_LEVELING_BACKING_SIZE
+#    define WEAR_LEVELING_BACKING_SIZE 512
+#endif
+
+/* USB IN endpoint queues: two reports deep instead of four. */
+#ifndef USB_DEFAULT_BUFFER_CAPACITY
+#    define USB_DEFAULT_BUFFER_CAPACITY 2
+#endif
+
+/* The hardware-ID serial number descriptor is built in RAM. */
+#ifndef SERIAL_NUMBER_USE_HARDWARE_ID
+#    define SERIAL_NUMBER_USE_HARDWARE_ID FALSE
+#endif

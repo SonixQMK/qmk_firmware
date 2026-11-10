@@ -1046,10 +1046,10 @@ ifneq ($(findstring SN32F268F, $(MCU)),)
 
   USE_FPU ?= no
 
-  # Stack sizes: Since this chip has limited RAM capacity, the stack area needs to be reduced.
-  # This ensures that the EEPROM page buffer fits into RAM
-  USE_PROCESS_STACKSIZE ?= 0x600
-  USE_EXCEPTIONS_STACKSIZE ?= 0x300
+  # Stack sizes: this chip has only 2 KB of RAM, keep the stacks small.
+  # These are the values handwired/onekey/sn32f260 has been using.
+  USE_PROCESS_STACKSIZE ?= 0x1E0
+  USE_EXCEPTIONS_STACKSIZE ?= 0xE0
 
   # Bootloader address for SN32 DFU
   SN32_BOOTLOADER_ADDRESS = 0x1FFF0009
