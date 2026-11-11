@@ -1046,10 +1046,10 @@ ifneq ($(findstring SN32F268F, $(MCU)),)
 
   USE_FPU ?= no
 
-  # Stack sizes: this chip has only 2 KB of RAM, keep the stacks small.
-  # These are the values handwired/onekey/sn32f260 has been using.
-  USE_PROCESS_STACKSIZE ?= 0x1E0
-  USE_EXCEPTIONS_STACKSIZE ?= 0xE0
+  # Stack sizes measured on a Keychron K7 (SN32F268F) from the crt0 fill pattern: main stack 224 bytes,
+  # process stack 512 bytes (send_string path included). 0x1E0 / 0xE0 overflowed.
+  USE_PROCESS_STACKSIZE ?= 0x260
+  USE_EXCEPTIONS_STACKSIZE ?= 0x100
 
   # Bootloader address for SN32 DFU
   SN32_BOOTLOADER_ADDRESS = 0x1FFF0009

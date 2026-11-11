@@ -30,10 +30,10 @@
 
 /* The SN32F26x has only 2 KB of RAM. */
 
-/* Logical EEPROM is cached in RAM: 128 bytes hold the 37-byte eeconfig core block
- * with room for keyboard/user data. The backing store keeps the usual 4x ratio. */
+/* Logical EEPROM is cached in RAM: 64 bytes hold the 37-byte eeconfig core block
+ * with some room for keyboard/user data. */
 #ifndef WEAR_LEVELING_LOGICAL_SIZE
-#    define WEAR_LEVELING_LOGICAL_SIZE 128
+#    define WEAR_LEVELING_LOGICAL_SIZE 64
 #endif
 #ifndef WEAR_LEVELING_BACKING_SIZE
 #    define WEAR_LEVELING_BACKING_SIZE 512
