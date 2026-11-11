@@ -1046,10 +1046,12 @@ ifneq ($(findstring SN32F268F, $(MCU)),)
 
   USE_FPU ?= no
 
-  # Stack sizes: Since this chip has limited RAM capacity, the stack area needs to be reduced.
-  # This ensures that the EEPROM page buffer fits into RAM
-  USE_PROCESS_STACKSIZE ?= 0x600
-  USE_EXCEPTIONS_STACKSIZE ?= 0x300
+  # Stack sizes measured on a Keychron K7 (SN32F268F) from the crt0 fill pattern: main stack 224 bytes,
+  # process stack 512 bytes (send_string path included, tap-hold disabled). 0x1E0 / 0xE0 overflowed.
+  # Tap-hold adds about 120 bytes to the deepest process stack path (static call graph walk), so the
+  # default leaves room for it.
+  USE_PROCESS_STACKSIZE ?= 0x2A0
+  USE_EXCEPTIONS_STACKSIZE ?= 0x100
 
   # Bootloader address for SN32 DFU
   SN32_BOOTLOADER_ADDRESS = 0x1FFF0009

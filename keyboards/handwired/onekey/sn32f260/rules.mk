@@ -1,3 +1,2 @@
-# Reduce code size
-USE_PROCESS_STACKSIZE    = 0x1E0
-USE_EXCEPTIONS_STACKSIZE = 0xE0
+# Send the keyboard report through the shared HID endpoint to fit the 2 KB of RAM
+KEYBOARD_SHARED_EP = yes

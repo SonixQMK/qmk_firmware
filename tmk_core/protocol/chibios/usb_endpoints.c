@@ -8,6 +8,54 @@
 #include "usb_driver.h"
 #include "usb_endpoints.h"
 #include "report.h"
+#include "compiler_support.h"
+
+/* A stored report is a copy of the last IN transfer of its endpoint, so it has to hold a full packet. */
+#define ASSERT_FITS_REPORT_STORAGE(ep_size) STATIC_ASSERT((ep_size) <= USB_REPORT_STORAGE_SIZE, #ep_size " does not fit USB_REPORT_STORAGE_SIZE")
+#if defined(SHARED_EP_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(SHARED_EPSIZE);
+#endif
+#if !defined(KEYBOARD_SHARED_EP)
+ASSERT_FITS_REPORT_STORAGE(KEYBOARD_EPSIZE);
+#endif
+#if defined(MOUSE_ENABLE) && !defined(MOUSE_SHARED_EP)
+ASSERT_FITS_REPORT_STORAGE(MOUSE_EPSIZE);
+#endif
+#if defined(JOYSTICK_ENABLE) && !defined(JOYSTICK_SHARED_EP)
+ASSERT_FITS_REPORT_STORAGE(JOYSTICK_EPSIZE);
+#endif
+#if defined(DIGITIZER_ENABLE) && !defined(DIGITIZER_SHARED_EP)
+ASSERT_FITS_REPORT_STORAGE(DIGITIZER_EPSIZE);
+#endif
+#if defined(CONSOLE_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(CONSOLE_EPSIZE);
+#endif
+#if defined(RAW_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(RAW_EPSIZE);
+#endif
+#if defined(PLOVER_HID_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(PLOVER_HID_EPSIZE);
+#endif
+/* The storage entries start out with the size of their report type as length. */
+ASSERT_FITS_REPORT_STORAGE(sizeof(report_keyboard_t));
+#if defined(MOUSE_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(sizeof(report_mouse_t));
+#endif
+#if defined(EXTRAKEY_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(sizeof(report_extra_t));
+#endif
+#if defined(PROGRAMMABLE_BUTTON_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(sizeof(report_programmable_button_t));
+#endif
+#if defined(NKRO_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(sizeof(report_nkro_t));
+#endif
+#if defined(JOYSTICK_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(sizeof(report_joystick_t));
+#endif
+#if defined(DIGITIZER_ENABLE)
+ASSERT_FITS_REPORT_STORAGE(sizeof(report_digitizer_t));
+#endif
 
 usb_endpoint_in_t usb_endpoints_in[USB_ENDPOINT_IN_COUNT] = {
 // clang-format off

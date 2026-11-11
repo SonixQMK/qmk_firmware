@@ -164,10 +164,10 @@ typedef struct {
     USBOutEndpointState ep_out_state;
     bool                is_shared;
 #endif
-    usb_endpoint_config_t config;
-    usbreqhandler_t       usb_requests_cb;
-    bool                  timed_out;
-    usb_report_storage_t *report_storage;
+    usb_endpoint_config_t       config;
+    usbreqhandler_t             usb_requests_cb;
+    bool                        timed_out;
+    const usb_report_storage_t *report_storage;
 } usb_endpoint_in_t;
 
 typedef struct {
