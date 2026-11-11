@@ -188,13 +188,16 @@ bool usb_shared_idle_timer_elapsed(usb_fs_report_t *const *reports, uint8_t repo
     return chTimeI2MS(chVTTimeElapsedSinceX(last_report)) >= idle_rate;
 }
 
-void usb_idle_task(void) {
+/* noinline: keeps the stack copy below out of the caller's frame, which also holds the deepest
+ * call paths (keyboard_task() -> process_record() -> ...) */
+__attribute__((noinline)) void usb_idle_task(void) {
     if (!run_idle_task) {
         return;
     }
 
-    static usb_fs_report_t report;
-    bool                   non_zero_idle_rate_found = false;
+    /* send_report() copies the report into the endpoint queue, a stack copy is enough */
+    usb_fs_report_t report;
+    bool            non_zero_idle_rate_found = false;
 
     for (int ep = 0; ep < USB_ENDPOINT_IN_COUNT; ep++) {
         const usb_report_storage_t *report_storage = usb_endpoints_in[ep].report_storage;
